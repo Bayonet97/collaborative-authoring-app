@@ -1,4 +1,4 @@
-# collaborative-authoring-backend
+# collaborative-authoring-app
 ## Development environment setup
 Install kubectl
 ```
