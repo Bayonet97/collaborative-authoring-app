@@ -1,0 +1,1 @@
+Run image on Docker: docker-compose up -d
