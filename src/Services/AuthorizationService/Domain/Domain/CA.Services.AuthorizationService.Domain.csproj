@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>CA.Services.AuthorizationService.Domain</AssemblyName>
+    <RootNamespace>CA.Services.AuthorizationService.Domain</RootNamespace>
+  </PropertyGroup>
+
+</Project>

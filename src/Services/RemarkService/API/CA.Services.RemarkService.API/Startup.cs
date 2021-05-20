@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CA.Services.AuthoringService.API
+namespace CA.Services.RemarkService.API
 {
     public class Startup
     {
@@ -30,7 +30,7 @@ namespace CA.Services.AuthoringService.API
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CA.Services.RemarkService.API", Version = "v1" });
             });
         }
 
@@ -41,7 +41,7 @@ namespace CA.Services.AuthoringService.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CA.Services.RemarkService.API v1"));
             }
 
             app.UseHttpsRedirection();
