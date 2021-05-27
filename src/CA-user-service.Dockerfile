@@ -7,9 +7,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["Services/UserService/API/API.csproj", "Services/UserService/API/"]
+COPY ["Services/UserService/API/CA.Services.UserService.API.csproj", "Services/UserService/API/"]
 
-RUN dotnet restore "Services/UserService/API/API.csproj"
+RUN dotnet restore "Services/UserService/API/CA.Services.UserService.API.csproj"
 COPY . .
 WORKDIR "/src/Services/UserService/API"
 RUN dotnet build "CA.Services.UserService.API.csproj" -c Release -o /app/build
