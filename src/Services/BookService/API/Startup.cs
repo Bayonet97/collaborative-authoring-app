@@ -44,6 +44,20 @@ namespace CA.Services.AuthoringService.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
             }
 
+            #region AcceptWebSocket
+            app.Use(async (context, next) =>
+            {
+                using (WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync())
+                {
+                    var socketFinishedTcs = new TaskCompletionSource<object>();
+
+                    BackgroundSocketProcessor.AddSocket(webSocket, socketFinishedTcs);
+
+                    await socketFinishedTcs.Task;
+                }
+            });
+            #endregion
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
