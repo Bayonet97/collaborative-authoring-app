@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,7 +28,20 @@ namespace CA.Services.AuthorizationService.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/authenticate/google-login";
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = Configuration.GetValue<string>("GoogleAuthentication:ClientId");
+                    options.ClientSecret = Configuration.GetValue<string>("GoogleAuthentication:Secret");
 
+                });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -40,14 +55,15 @@ namespace CA.Services.AuthorizationService.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CA.Services.AuthorizationService.API v1"));
+/*                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CA.Services.AuthorizationService.API v1"));*/
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
