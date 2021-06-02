@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "API": {
+    "CA.Services.AuthoringService.API": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
