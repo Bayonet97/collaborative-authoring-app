@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
+using CA.Services.AuthoringService.API.Middleware;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -29,6 +32,8 @@ namespace CA.Services.AuthoringService.API
         {
 
             services.AddControllers();
+            services.AddWebSocketController();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
@@ -47,18 +52,12 @@ namespace CA.Services.AuthoringService.API
 
             app.UseWebSockets();
 
-            // Create websocket gate.
-            app.Use(async (context, next) =>
+            app.UseWebsocketServer();
+
+            app.Run(async context =>
             {
-                if (context.WebSockets.IsWebSocketRequest)
-                {
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                    Console.WriteLine("Websocket Connected");
-                }
-                else
-                {
-                    await next();
-                }
+                Console.WriteLine("Websocktet Run delegate");
+                await context.Response.WriteAsync("Websocktet Run delegate.");
             });
 
             app.UseHttpsRedirection();
@@ -72,5 +71,20 @@ namespace CA.Services.AuthoringService.API
                 endpoints.MapControllers();
             });
         }
+
+
+
+/*        public void WriteRequestParam(HttpContext context)
+        {
+            Console.WriteLine("Request Method: " + context.Request.Method);
+            Console.WriteLine("Request Protocol: " + context.Request.Protocol);
+            if(context.Request.Headers != null)
+            {
+                foreach(var h in context.Request.Headers)
+                {
+                    Console.WriteLine($"--->  {h.Key} : {h.Value}");
+                }
+            }
+        }*/
     }
 }
