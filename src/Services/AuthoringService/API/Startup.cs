@@ -15,6 +15,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using CA.Services.AuthoringService.API.Middleware;
+using CA.Services.AuthoringService.API.Controllers;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -32,12 +33,11 @@ namespace CA.Services.AuthoringService.API
         {
 
             services.AddControllers();
-            services.AddWebSocketController();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-            });
+            //services.AddWebSocketController();
+
+            services.AddCors();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,11 +46,27 @@ namespace CA.Services.AuthoringService.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
             }
+            
+            app.UseRouting();
 
-            app.UseWebSockets();
+            // SignalR
+            app.UseCors(builder => builder
+            .WithOrigins("null")
+            .AllowAnyHeader()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            );
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<AuthoringSignalRController>("/authoring");
+            });
+            // End SignalR
+
+            // Websockets
+/*            app.UseWebSockets();
 
             app.UseWebsocketServer();
 
@@ -58,11 +74,11 @@ namespace CA.Services.AuthoringService.API
             {
                 Console.WriteLine("Websocktet Run delegate");
                 await context.Response.WriteAsync("Websocktet Run delegate.");
-            });
+            });*/
+            // End websockets
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
 
             app.UseAuthorization();
 
@@ -71,20 +87,5 @@ namespace CA.Services.AuthoringService.API
                 endpoints.MapControllers();
             });
         }
-
-
-
-/*        public void WriteRequestParam(HttpContext context)
-        {
-            Console.WriteLine("Request Method: " + context.Request.Method);
-            Console.WriteLine("Request Protocol: " + context.Request.Protocol);
-            if(context.Request.Headers != null)
-            {
-                foreach(var h in context.Request.Headers)
-                {
-                    Console.WriteLine($"--->  {h.Key} : {h.Value}");
-                }
-            }
-        }*/
     }
 }

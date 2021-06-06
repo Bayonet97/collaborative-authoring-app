@@ -7,6 +7,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace CA.Services.AuthoringService.API.Middleware
 {
@@ -41,11 +42,19 @@ namespace CA.Services.AuthoringService.API.Middleware
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
                         Console.WriteLine($"Message Received : {Encoding.UTF8.GetString(buffer, 0, result.Count)}");
+                        await RouteJsonMessageAsync(Encoding.UTF8.GetString(buffer, 0, result.Count));
                         return;
                     }
                     else if (result.MessageType == WebSocketMessageType.Close)
                     {
+                        string id = _controller.GetAllSockets().FirstOrDefault(s => s.Value == webSocket).Key;
+
+                        _controller.GetAllSockets().TryRemove(id, out WebSocket socket);
+
                         Console.WriteLine("Received Close Message");
+
+                        await socket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+
                         return;
                     }
                 });
@@ -72,6 +81,42 @@ namespace CA.Services.AuthoringService.API.Middleware
                 var result = await socket.ReceiveAsync(buffer: new ArraySegment<byte>(buffer), cancellationToken: CancellationToken.None);
 
                 handleMessage(result, buffer);
+            }
+        }
+
+        public async Task RouteJsonMessageAsync(string message)
+        {
+            var route = JsonConvert.DeserializeObject<dynamic>(message);
+
+            if (Guid.TryParse(route.To.ToString(), out Guid guidOutput))
+            {
+                Console.WriteLine("Targeted");
+                var socket = _controller.GetAllSockets().FirstOrDefault(s => s.Key == route.To.ToString());
+                if(socket.Value != null)
+                {
+                    if(socket.Value.State == WebSocketState.Open)
+                    {
+                        await socket.Value.SendAsync(Encoding.UTF8.GetBytes(route.Message.ToString()),
+                        WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                  
+                }
+                else
+                {
+                    Console.WriteLine("Invalide Recipient");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Broadcast");
+                foreach (var socket in _controller.GetAllSockets())
+                {
+                    if (socket.Value.State == WebSocketState.Open)
+                    {
+                        await socket.Value.SendAsync(Encoding.UTF8.GetBytes(route.Message.ToString()),
+                        WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                }
             }
         }
     }
