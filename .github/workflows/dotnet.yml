@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore src/Collaborative_Authoring.sln
+      run: dotnet restore src/Services/AuthoringService/API/CA.Services.AuthoringService.API.csproj
     - name: Build
-      run: dotnet build --no-restore src/Collaborative_Authoring.sln
+      run: dotnet build --no-restore src/Services/AuthoringService/API/CA.Services.AuthoringService.API.csproj
     - name: Test
-      run: dotnet test --no-build --verbosity normal src/Collaborative_Authoring.sln
+      run: dotnet test --no-build --verbosity normal src/Services/AuthoringService/API/CA.Services.AuthoringService.API.csproj
