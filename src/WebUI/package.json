@@ -12,6 +12,7 @@
     "name": ""
   },
   "dependencies": {
+    "@aspnet/signalr": "^1.0.27",
     "vue": "2.5.17"
   },
   "devDependencies": {
