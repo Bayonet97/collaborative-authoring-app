@@ -50,6 +50,8 @@ namespace CA.Services.AuthoringService.API
             
             app.UseRouting();
 
+            app.UseAuthorization();
+            
             // SignalR
             app.UseCors(builder => builder
             .WithOrigins("null")
@@ -78,9 +80,6 @@ namespace CA.Services.AuthoringService.API
             // End websockets
 
             app.UseHttpsRedirection();
-
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
