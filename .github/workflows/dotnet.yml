@@ -20,14 +20,8 @@ jobs:
     - "cd src"
     - "dotnet restore"
     stage: build
-    steps:
-      script:
-      - dotnet publish -c Release
-  artifacts:
-    paths:
-      - src/
-    steps:
-      expire_in: 30 minutes
+    steps: 
+      run: dotnet publish -c Release
 
   test:
     before_script:
@@ -35,8 +29,7 @@ jobs:
     - "dotnet restore"
     stage: test
     steps:
-      script:
-        - dotnet test /p:CollectCoverage=true
+       run: dotnet test /p:CollectCoverage=true
 
 #build_authorization_service:
 #  stage: ContainerBuild
