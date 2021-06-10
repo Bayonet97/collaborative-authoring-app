@@ -9,10 +9,10 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "Code Analysis"
+name: Code Analysis
 
 on:
-   workflow_dispatch:
+  workflow_dispatch:
   push:
     branches:
       - main
