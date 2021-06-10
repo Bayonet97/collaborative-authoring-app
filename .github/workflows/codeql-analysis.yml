@@ -12,9 +12,12 @@
 name: "Code Analysis"
 
 on:
-  workflow_dispatch:
+   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths:
+      - src/
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
