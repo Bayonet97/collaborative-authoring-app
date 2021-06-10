@@ -22,8 +22,8 @@ jobs:
     steps: 
       - uses: actions/checkout@v2
       - name: Build
-      - run: dotnet publish -c Release
-      - uses: actions/setup-dotnet@v1
+        run: dotnet publish -c Release
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 5.0.x
 
@@ -35,8 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Test
-      - uses: actions/setup-dotnet@v1
-      - run: dotnet test /p:CollectCoverage=true
+        uses: actions/setup-dotnet@v1
+        run: dotnet test /p:CollectCoverage=true
 
 #build_authorization_service:
 #  stage: ContainerBuild
