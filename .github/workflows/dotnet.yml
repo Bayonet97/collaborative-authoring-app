@@ -21,7 +21,7 @@ jobs:
     - "dotnet restore"
     stage: build
     steps: 
-      run: dotnet publish -c Release
+     - run: dotnet publish -c Release
 
   test:
     before_script:
@@ -29,7 +29,7 @@ jobs:
     - "dotnet restore"
     stage: test
     steps:
-       run: dotnet test /p:CollectCoverage=true
+      - run: dotnet test /p:CollectCoverage=true
 
 #build_authorization_service:
 #  stage: ContainerBuild
