@@ -1,4 +1,4 @@
-name: AuthorizationService
+name: AuthoringService
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
     branches:
       - main
     paths:
-      - src/Services/AuthorizationService/**
+      - src/Services/AuthoringService/**
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - src/Services/AuthorizationService/**
+      - src/Services/AuthoringService/**
 
 defaults:
   run:
@@ -34,11 +34,11 @@ jobs:
     
     # Installs the dependencies
     - name: Install dependencies
-      run: dotnet restore ./Services/AuthorizationService/API
+      run: dotnet restore ./Services/AuthoringService/API
 
     # Builds the code
     - name: Build
-      run: dotnet build --no-restore ./Services/AuthorizationService/API
+      run: dotnet build --no-restore ./Services/AuthoringService/API
   
   test:
     needs: build
@@ -51,7 +51,7 @@ jobs:
 
     # Tests the code
     - name: Build
-      run: dotnet test ./Services/AuthorizationService/Tests
+      run: dotnet test ./Services/AuthoringService/Tests
 
   semver:
     name: Calculate SemVer version
@@ -68,13 +68,13 @@ jobs:
       id: gitversion
       uses: codacy/git-version@2.4.0
       with:
-        prefix: CA-authorization-service-
+        prefix: CA-authoring-service-
 
     - name: Fix semver
       id: fixsemver
       run: |
         VERSION=${{ steps.gitversion.outputs.VERSION }}
-        FIXED_SEMVER=${VERSION##*CA-authorization-service-}
+        FIXED_SEMVER=${VERSION##*CA-authoring-service-}
         echo "::set-output name=SEMVER::${FIXED_SEMVER}"
         echo "${FIXED_SEMVER}"
 
@@ -132,12 +132,12 @@ jobs:
   #       username: ${{ secrets.NEURALM_DOCKER_USERNAME }}
   #       password: ${{ secrets.NEURALM_DOCKER_PASSWORD }}
     
-  #   - name: Build and push AuthorizationService Docker image 
+  #   - name: Build and push AuthoringService Docker image 
   #     run: |
-  #       echo "Building AuthorizationService docker image"
-  #       docker build -t ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service:${{ env.SEMVER }} -t ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service:latest -f ./CA-authorization-service.Dockerfile .
-  #       echo "Publishing AuthorizationService docker image"
-  #       docker push --all-tags ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service
+  #       echo "Building AuthoringService docker image"
+  #       docker build -t ${{ secrets.NEURALM_REGISTRY }}/CA-authoring-service:${{ env.SEMVER }} -t ${{ secrets.NEURALM_REGISTRY }}/CA-authoring-service:latest -f ./CA-authoring-service.Dockerfile .
+  #       echo "Publishing AuthoringService docker image"
+  #       docker push --all-tags ${{ secrets.NEURALM_REGISTRY }}/CA-authoring-service
 
   # production:
   #   needs: 
@@ -155,7 +155,7 @@ jobs:
 
   #     - name: Update manifest tags
   #       run: |
-  #         sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../K8s/services/authorization-service/CA-authorization-service.deployment.yaml
+  #         sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../K8s/services/authoring-service/CA-authoring-service.deployment.yaml
       
   #     - name: Set kubernetes context
   #       uses: azure/k8s-set-context@v1
@@ -169,5 +169,5 @@ jobs:
   #       with:
   #         namespace: CA
   #         manifests: |
-  #           ./K8s/services/authorization-service/CA-authorization-service.deployment.yaml
+  #           ./K8s/services/authoring-service/CA-authoring-service.deployment.yaml
       
