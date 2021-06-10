@@ -6,21 +6,44 @@ on:
   pull_request:
     branches: [ main ]
 
+image: mcr.microsoft.com/dotnet/sdk:5.0
+#This declares the pipeline stages  
+stages:
+  - build
+  - test
+  - ContainerBuild
+  - deployment
+
 jobs:
   build:
+    before_script:
+    - "cd src"
+    - "dotnet restore"
+    stage: build
+    script:
+    - dotnet publish -c Release
+  artifacts:
+    paths:
+      - src/
+    expire_in: 30 minutes
 
-    runs-on: ubuntu-latest
+  test:
+    before_script:
+    - "cd src"
+    - "dotnet restore"
+    stage: test
+    script:
+      - dotnet test /p:CollectCoverage=true
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-
-    - name: Restore dependencies
-      run: dotnet restore src/Collaborative_Authoring.sln
-    - name: Build
-      run: dotnet build --no-restore src/Collaborative_Authoring.sln
-    - name: Test
-      run: dotnet test --no-build --verbosity normal src/Collaborative_Authoring.sln
+#build_authorization_service:
+#  stage: ContainerBuild
+#  image:
+#    name: gcr.io/kaniko-project/executor:debug
+#    entrypoint: [""]
+#  only:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /master/
+#  script:
+#    - mkdir -p /kaniko/.docker/
+#   - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+#    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/src/vetis-authorization-service.Dockerfile --destination $CI_REGISTRY_IMAGE/vetis-authorization-service:$CI_COMMIT_SHORT_SHA --destination $CI_REGISTRY_IMAGE/vetis-authorization-service:latest
