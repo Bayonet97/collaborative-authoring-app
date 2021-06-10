@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-image: mcr.microsoft.com/dotnet/sdk:5.0
 #This declares the pipeline stages  
 stages:
   - build
@@ -21,7 +20,12 @@ jobs:
     - "dotnet restore"
     stage: build
     steps: 
-     - run: dotnet publish -c Release
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+      - run: dotnet publish -c Release
+	uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
 
   test:
     before_script:
