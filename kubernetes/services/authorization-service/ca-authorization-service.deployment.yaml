@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ca-authorization-service
+  namespace: collaborative-authoring
+  labels:
+    app: ca-authorization-service
+    service: ca-authorization-service
+spec:
+  selector:
+    app: ca-authorization-service-pod
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ca-authorization-service
+  namespace: collaborative-authoring
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ca-authorization-service-pod
+      version: latest
+  template:
+    metadata:
+      labels:
+        app: ca-authorization-service-pod
+        version: latest
+    spec:
+      containers:
+        - name: ca-authorization-container
+          image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-authorization-service
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: google-cloud-service-account-secret
+          resources:
+            limits:
+              memory: 250Mi
+              cpu: 200m
+          ports:
+            - containerPort: 80
