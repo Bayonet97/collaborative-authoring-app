@@ -41,14 +41,13 @@ spec:
     spec:
       containers:
         - name: ca-authorization-container
-          image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-authorization-service
+          image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-authorization-service:latest
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: google-cloud-service-account-secret
           resources:
             limits:
               memory: 250Mi
               cpu: 200m
           ports:
             - containerPort: 80
+      imagePullSecrets:
+        - name: gcr-json-key      
