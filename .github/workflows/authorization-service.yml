@@ -106,11 +106,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
     - name: Login to Google Docker registry
-      uses: docker/login-action@v1 
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
-        registry: ${{ secrets.DOCKER_SERVER }}
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        version: '270.0.0'
+        service_account_key: ${{ secrets.DOCKER_PASSWORD }} 
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
     
     - name: Build and push AuthorizationService Docker image 
       run: |
