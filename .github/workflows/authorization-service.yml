@@ -81,7 +81,7 @@ jobs:
         echo "::set-output name=SEMVER::${FIXED_SEMVER}"
         echo "${FIXED_SEMVER}"
 
-    docker:
+  docker:
     needs: 
      - test
      - semver
