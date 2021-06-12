@@ -20,7 +20,8 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     steps:
     # Checks out the code
     - name: Checkout
@@ -43,7 +44,8 @@ jobs:
   test:
     needs: build
     name: Test
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     steps:
     # Checks out the code
     - name: Checkout
@@ -55,7 +57,8 @@ jobs:
 
   semver:
     name: Calculate SemVer version
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     outputs:
       SEMVER: ${{ steps.fixsemver.outputs.SEMVER }}
     steps:
@@ -78,66 +81,43 @@ jobs:
         echo "::set-output name=SEMVER::${FIXED_SEMVER}"
         echo "${FIXED_SEMVER}"
 
-  # docker:
-  #   needs: 
-  #    - test
-  #    - semver
-  #   name: Build and push Docker images
-  #   env:
-  #     SEMVER: ${{ needs.semver.outputs.SEMVER }}
-  #   environment:
-  #     name: docker
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-    
-  #   - name: Add Neuralm certificate
-  #     run: |
-  #       echo "Create root certificate directory"
-  #       sudo mkdir -p /usr/local/share/ca-certificates/${{ secrets.NEURALM_REGISTRY }}/
-  #       echo "Create certificate"
-  #       sudo printf "${{ secrets.NEURALM_CERTIFICATE }}" >> neuralm.crt
-  #       echo "Create docker directory"
-  #       sudo mkdir -p /etc/docker/
-  #       echo "Create docker daemon json"
-  #       sudo touch /etc/docker/daemon.json
-  #       echo "Copy certificate to the ca-certificates directory"
-  #       sudo cp neuralm.crt /usr/local/share/ca-certificates/${{ secrets.NEURALM_REGISTRY }}/ca.crt
-  #       echo "Create neuralm certificate directory in docker"
-  #       sudo mkdir -p /etc/docker/certs.d/${{ secrets.NEURALM_REGISTRY }}/
-  #       echo "Copy certificate to the docker directory"
-  #       sudo cp neuralm.crt /etc/docker/certs.d/${{ secrets.NEURALM_REGISTRY }}/ca.crt
-  #       echo "Update CA certificates"
-  #       sudo update-ca-certificates
-  #       echo "Restart docker"
-  #       sudo systemctl daemon-reload
-  #       sudo systemctl restart docker
+    docker:
+    needs: 
+     - test
+     - semver
+    name: Build and push Docker images
+    env:
+      SEMVER: ${{ needs.semver.outputs.SEMVER }}
+    environment:
+      name: docker
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-  #   - name: Set up Docker Buildx
-  #     uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
     
-  #   - name: Cache Docker layers
-  #     uses: actions/cache@v2
-  #     with:
-  #       path: /tmp/.buildx-cache
-  #       key: ${{ runner.os }}-buildx-${{ github.sha }}
-  #       restore-keys: |
-  #         ${{ runner.os }}-buildx-
-
-  #   - name: Login to Neuralm Docker registry
-  #     uses: docker/login-action@v1 
-  #     with:
-  #       registry: ${{ secrets.NEURALM_REGISTRY }}
-  #       username: ${{ secrets.NEURALM_DOCKER_USERNAME }}
-  #       password: ${{ secrets.NEURALM_DOCKER_PASSWORD }}
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    - name: Login to Google Docker registry
+      uses: docker/login-action@v1 
+      with:
+        registry: ${{ secrets.DOCKER_SERVER }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
     
-  #   - name: Build and push AuthorizationService Docker image 
-  #     run: |
-  #       echo "Building AuthorizationService docker image"
-  #       docker build -t ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service:${{ env.SEMVER }} -t ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service:latest -f ./CA-authorization-service.Dockerfile .
-  #       echo "Publishing AuthorizationService docker image"
-  #       docker push --all-tags ${{ secrets.NEURALM_REGISTRY }}/CA-authorization-service
+    - name: Build and push AuthorizationService Docker image 
+      run: |
+        echo "Building AuthorizationService docker image"
+        docker build -t ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}:${{ env.SEMVER }} -t ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}:latest -f ./CA-authorization-service.Dockerfile .
+        echo "Publishing AuthorizationService docker image"
+        docker push --all-tags ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}
 
   # production:
   #   needs: 
@@ -148,7 +128,7 @@ jobs:
   #     SEMVER: ${{ needs.semver.outputs.SEMVER }}
   #   environment:
   #     name: production
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-20.04
   #   steps:
   #     - name: Checkout
   #       uses: actions/checkout@v2
