@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ca-user-service
+  namespace: collaborative-authoring
+  labels:
+    app: ca-user-service
+    service: ca-user-service
+spec:
+  selector:
+    app: ca-user-service-pod
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ca-user-service
+  namespace: collaborative-authoring
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ca-user-service-pod
+      version: latest
+  template:
+    metadata:
+      labels:
+        app: ca-user-service-pod
+        version: latest
+    spec:
+      containers:
+        - name: ca-user-container
+          image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-user-service:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 250Mi
+              cpu: 200m
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: gcr-json-key      
