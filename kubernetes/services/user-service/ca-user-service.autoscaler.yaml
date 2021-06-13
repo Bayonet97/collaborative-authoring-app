@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ca-user-service-autoscaler
+  namespace: collaborative-authoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ca-user-service
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
