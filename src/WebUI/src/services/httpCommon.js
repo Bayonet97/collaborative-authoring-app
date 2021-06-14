@@ -13,7 +13,7 @@ http.interceptors.request.use(
         const token = await firebase.auth().currentUser?.getIdToken();
 
     if (token !== null) {
-      config.headers.Authorization = Bearer ${token};
+      config.headers.Authorization = `Bearer ${token}`;
     } else {
       delete http.defaults.headers.common.Authorization;
     }

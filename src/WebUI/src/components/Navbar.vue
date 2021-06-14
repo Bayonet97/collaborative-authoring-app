@@ -1,11 +1,3 @@
-export default {
-  name: "App",
-  components: { Navbar },
-  data: () => ({
-    items: [...Array(4)].map((_, i) => Item ${i}),
-  }),
-};
-</script>
 <template>
   <v-app-bar
     app
