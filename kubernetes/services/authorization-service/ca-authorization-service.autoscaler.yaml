@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ca-authorization-service-autoscaler
+  namespace: collaborative-authoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ca-authorization-service
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75

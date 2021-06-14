@@ -1,0 +1,159 @@
+name: AuthorizationService
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - src/Services/AuthorizationService/**
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - src/Services/AuthorizationService/**
+
+defaults:
+  run:
+    working-directory: src
+
+jobs:
+
+  build:
+    name: Build
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
+    steps:
+    # Checks out the code
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Sets up the .NET SDK
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: '5.0.x'
+    
+    # Installs the dependencies
+    - name: Install dependencies
+      run: dotnet restore ./Services/AuthorizationService/API
+
+    # Builds the code
+    - name: Build
+      run: dotnet build --no-restore ./Services/AuthorizationService/API
+  
+  test:
+    needs: build
+    name: Test
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
+    steps:
+    # Checks out the code
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Tests the code
+    - name: Build
+      run: dotnet test ./Services/AuthorizationService/Tests
+
+  semver:
+    name: Calculate SemVer version
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
+    outputs:
+      SEMVER: ${{ steps.fixsemver.outputs.SEMVER }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Git version
+      id: gitversion
+      uses: codacy/git-version@2.4.0
+      with:
+        prefix: CA-authorization-service-
+
+    - name: Fix semver
+      id: fixsemver
+      run: |
+        VERSION=${{ steps.gitversion.outputs.VERSION }}
+        FIXED_SEMVER=${VERSION##*CA-authorization-service-}
+        echo "::set-output name=SEMVER::${FIXED_SEMVER}"
+        echo "${FIXED_SEMVER}"
+
+  docker:
+    needs: 
+     - test
+     - semver
+    name: Build and push Docker images
+    env:
+      SEMVER: ${{ needs.semver.outputs.SEMVER }}
+    environment:
+      name: docker
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    - name: Login to Google Docker registry
+    # Setup gcloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.DOCKER_PASSWORD }} 
+    - name: Configure Google Auth
+    # Configure docker to use the gcloud command-line tool as a credential helper
+      run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
+    
+    - name: Build and push AuthorizationService Docker image 
+      run: |
+        echo "Building AuthorizationService docker image"
+        docker build -t ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}:${{ env.SEMVER }} -t ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}:latest -f ./CA-authorization-service.Dockerfile .
+        echo "Publishing AuthorizationService docker image"
+        docker push --all-tags ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}
+
+  # production:
+  #   needs: 
+  #   - docker
+  #   - semver
+  #   name: Deploy to Kubernetes
+  #   env:
+  #     SEMVER: ${{ needs.semver.outputs.SEMVER }}
+  #   environment:
+  #     name: production
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+
+  #     - name: Update manifest tags
+  #       run: |
+  #         sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../K8s/services/authorization-service/CA-authorization-service.deployment.yaml
+      
+  #     - name: Set kubernetes context
+  #       uses: azure/k8s-set-context@v1
+  #       with:
+  #         method: kubeconfig
+  #         kubeconfig: ${{ secrets.KUBE_CONFIG }}
+  #         context: CA
+
+  #     - name: Deploy services
+  #       uses: jtalk/k8s-deploy@v2
+  #       with:
+  #         namespace: CA
+  #         manifests: |
+  #           ./K8s/services/authorization-service/CA-authorization-service.deployment.yaml
+      
