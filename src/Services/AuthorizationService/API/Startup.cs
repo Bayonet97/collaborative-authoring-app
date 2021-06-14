@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CA.Services.AuthorizationService.API
 {
@@ -47,6 +49,19 @@ namespace CA.Services.AuthorizationService.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CA.Services.AuthorizationService.API", Version = "v1" });
             });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = "https://securetoken.google.com/collaborative-authoring";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = "https://securetoken.google.com/collaborative-authoring",
+                        ValidateAudience = true,
+                        ValidAudience = "collaborative-authoring",
+                        ValidateLifetime = true
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
