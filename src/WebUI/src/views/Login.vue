@@ -87,10 +87,15 @@ export default {
   },
   methods: {
     submit() {
+      let provider = new firebase.auth.GoogleAuthProvider();
       firebase
         .auth()
-        .signInWithEmailAndPassword(this.form.email, this.form.password)
-        .then(() => {
+        .signInWithPopup(provider)
+        .then((result) => {
+          let token = result.credential.accessToken;
+          let user = result.user;
+            console.log(token) // Token
+            console.log(user) // User that was authenticated
           this.snackbarText = "Logged in";
           this.snackbarColor = "gray";
           this.snackbar = true;
