@@ -40,7 +40,7 @@ jobs:
       with:
         version: '270.0.0'
         service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-        project_id: ${{ secrets.GCLOUD_PROJECT_ID }} 
+        project_id: s64-1-vetis
 
     # Sets up the .NET SDK
     - name: Setup .NET SDK
