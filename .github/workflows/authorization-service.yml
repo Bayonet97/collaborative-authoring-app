@@ -33,7 +33,7 @@ jobs:
     # Checks out the code
     - name: Checkout
       uses: actions/checkout@v2
-
+    
     - name: Configure Google Auth
     # Setup gcloud CLI
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -42,6 +42,15 @@ jobs:
         service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
         project_id: s64-1-vetis
 
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker
+        
+    # Get the GKE credentials so we can deploy to the cluster
+    - run: |-
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+  
     # Sets up the .NET SDK
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1.7.2
@@ -121,24 +130,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
-    - name: Configure Google Auth
-    # Setup gcloud CLI
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with:
-        version: '270.0.0'
-        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-        project_id: s64-1-vetis
-
-    # Configure docker to use the gcloud command-line tool as a credential helper
-    - run: |
-        # Set up docker to authenticate
-        # via gcloud command-line tool.
-        gcloud --quiet auth configure-docker
-    
-        # Get the GKE credentials so we can deploy to the cluster
-#    - run: |-
-#        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-
     - name: Build and push AuthorizationService Docker image 
       run: |
         echo "Building AuthorizationService docker image"
@@ -169,20 +160,6 @@ jobs:
         run: |-
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
-    
-      - name: Configure Google Auth
-      # Setup gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-          project_id: s64-1-vetis
-
-      - run: |-
-          gcloud auth login
-    # Get the GKE credentials so we can deploy to the cluster
-      - run: |-
-          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
