@@ -12,6 +12,13 @@ on:
     paths:
       - src/Services/AuthorizationService/**
 
+env:
+  PROJECT_ID: ${{ secrets.GCLOUD_ID }}
+  GKE_CLUSTER: ca-cluster    # TODO: update to cluster name
+  GKE_ZONE: us-west1-a   # TODO: update to cluster zone
+  DEPLOYMENT_NAME: authorization-service # TODO: update to deployment name
+  IMAGE: static-site
+
 defaults:
   run:
     working-directory: src
@@ -118,6 +125,10 @@ jobs:
         # via gcloud command-line tool.
         gcloud auth configure-docker
     
+        # Get the GKE credentials so we can deploy to the cluster
+    - run: |-
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
     - name: Build and push AuthorizationService Docker image 
       run: |
         echo "Building AuthorizationService docker image"
@@ -125,35 +136,35 @@ jobs:
         echo "Publishing AuthorizationService docker image"
         docker push --all-tags ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}
 
-  # production:
-  #   needs: 
-  #   - docker
-  #   - semver
-  #   name: Deploy to Kubernetes
-  #   env:
-  #     SEMVER: ${{ needs.semver.outputs.SEMVER }}
-  #   environment:
-  #     name: production
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
+  production:
+    needs: 
+    - docker
+    - semver
+    name: Deploy to Kubernetes
+    env:
+      SEMVER: ${{ needs.semver.outputs.SEMVER }}
+    environment:
+      name: production
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  #     - name: Update manifest tags
-  #       run: |
-  #         sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../K8s/services/authorization-service/CA-authorization-service.deployment.yaml
-      
-  #     - name: Set kubernetes context
-  #       uses: azure/k8s-set-context@v1
-  #       with:
-  #         method: kubeconfig
-  #         kubeconfig: ${{ secrets.KUBE_CONFIG }}
-  #         context: CA
+      - name: Update manifest tags
+        run: |
+          sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../kubernetes/services/authorization-service/ca-authorization-service.deployment.yaml
+    
+    # Set up kustomize
+      - name: Set up Kustomize
+        run: |-
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
 
-  #     - name: Deploy services
-  #       uses: jtalk/k8s-deploy@v2
-  #       with:
-  #         namespace: CA
-  #         manifests: |
-  #           ./K8s/services/authorization-service/CA-authorization-service.deployment.yaml
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |-
+          ./kubernetes/services/authorization-service/ca-authorization-service.kustomization edit set image eu.gcr.io/PROJECT_ID/IMAGE:TAG=eu.gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
+          ./kubernetes/services/authorization-service/ca-authorization-service.kustomization . | kubectl apply -f -
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl get services -o wide
       

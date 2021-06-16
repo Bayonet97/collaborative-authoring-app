@@ -40,8 +40,8 @@ namespace CA.Services.AuthorizationService.API
                 })
                 .AddGoogle(options =>
                 {
-                    options.ClientId = Configuration.GetValue<string>("GoogleAuthentication:ClientId");
-                    options.ClientSecret = Configuration.GetValue<string>("GoogleAuthentication:Secret");
+                    options.ClientId = Configuration.GetValue<string>("GOOGLE_AUTHENTICATION_ID");
+                    options.ClientSecret = Configuration.GetValue<string>("GOOGLE_AUTHENTICATION_SECRET");
 
                 });
             services.AddControllers();
