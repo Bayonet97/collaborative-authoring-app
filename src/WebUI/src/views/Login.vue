@@ -41,6 +41,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn name="Login" @click="submit">Login</v-btn>
+            <v-btn name="Google Login" @click="submit">Google Login</v-btn>
           </v-card-actions>
         </v-card>
         <v-overlay :value="overlay">
