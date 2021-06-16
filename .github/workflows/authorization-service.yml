@@ -128,11 +128,9 @@ jobs:
         # via gcloud command-line tool.
         gcloud --quiet auth configure-docker
     
-    - run: |
-        gcloud config set account ${{ secrets.GCLOUD_SERVICE_ID }}
-        
-    - run: |-
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+        # Get the GKE credentials so we can deploy to the cluster
+#    - run: |-
+#        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
     - name: Build and push AuthorizationService Docker image 
       run: |
