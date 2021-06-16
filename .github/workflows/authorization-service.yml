@@ -34,15 +34,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-
-    - name: Configure Google Auth
-    # Setup gcloud CLI
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with:
-        version: '270.0.0'
-        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-        project_id: ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }} 
-
     # Sets up the .NET SDK
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1.7.2
@@ -121,6 +112,14 @@ jobs:
         key: ${{ runner.os }}-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-
+
+    - name: Configure Google Auth
+    # Setup gcloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+        project_id: ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }} 
 
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: |
