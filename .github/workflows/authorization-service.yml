@@ -173,8 +173,8 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-          ./kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml edit set image eu.gcr.io/PROJECT_ID/IMAGE:TAG=eu.gcr.io/$PROJECT_ID/$IMAGE:latest
-          ./kubernetes/services/authorization-service/ca-authorization-service.kustomization . | kubectl apply -f -
+          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml edit set image ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/IMAGE:TAG=${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/$IMAGE:latest
+          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml . | kubectl apply -f -
           kubectl rollout status deployment/$DEPLOYMENT_NAME
           kubectl get services -o wide
       
