@@ -34,8 +34,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+
+    - name: Configure Google Auth
     # Setup gcloud CLI
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         version: '270.0.0'
         service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
@@ -119,9 +121,7 @@ jobs:
         key: ${{ runner.os }}-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-
-    - name: Login to Google Docker registry
 
-    - name: Configure Google Auth
     # Configure docker to use the gcloud command-line tool as a credential helper
       run: |
         # Set up docker to authenticate
