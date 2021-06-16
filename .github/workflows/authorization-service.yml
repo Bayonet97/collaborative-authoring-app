@@ -126,7 +126,7 @@ jobs:
     - run: |
         # Set up docker to authenticate
         # via gcloud command-line tool.
-        gcloud auth configure-docker
+        gcloud --quiet auth configure-docker
     
         # Get the GKE credentials so we can deploy to the cluster
     - run: |-
