@@ -131,7 +131,6 @@ jobs:
     - run: |
         gcloud config set account ${{ secrets.GCLOUD_SERVICE_ID }}
         
-        # Get the GKE credentials so we can deploy to the cluster
     - run: |-
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
