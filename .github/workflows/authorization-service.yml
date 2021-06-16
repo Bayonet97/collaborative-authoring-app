@@ -127,7 +127,7 @@ jobs:
       with:
         version: '270.0.0'
         service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-        project_id: ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }} 
+        project_id: s64-1-vetis
 
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: |
