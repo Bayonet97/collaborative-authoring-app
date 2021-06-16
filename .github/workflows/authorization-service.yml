@@ -33,6 +33,14 @@ jobs:
     # Checks out the code
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - name: Configure Google Auth
+    # Setup gcloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+        project_id: ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }} 
 
     # Sets up the .NET SDK
     - name: Setup .NET SDK
