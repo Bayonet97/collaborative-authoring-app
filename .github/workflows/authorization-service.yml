@@ -161,7 +161,7 @@ jobs:
 
       - name: Update manifest tags
         run: |
-          sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml
+          sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../kubernetes/services/authorization-service/kustomization.yaml
     
     # Set up kustomize
       - name: Set up Kustomize
