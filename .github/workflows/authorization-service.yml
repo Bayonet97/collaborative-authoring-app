@@ -174,22 +174,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           version: '270.0.0'
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
-          project_id: s64-1-vetis
-
-      - run: |-
-          gcloud --quiet auth configure-docker
-    # Edit image
-      - name: Edit Image
-        run: |-
-          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml edit set image ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/IMAGE:TAG=${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/$IMAGE:latest
-          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml . | kubectl apply -f -
-
-      - name: Configure Google Auth
-      # Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
           service_account_key: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
           project_id: s64-1-vetis
 
@@ -210,6 +194,8 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
+          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml edit set image ${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/IMAGE:TAG=${{ secrets.AUTHORIZATION_SERVICE_REGISTRY }}/$IMAGE:latest
+          ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml . | kubectl apply -f -
           kubectl rollout status $DEPLOYMENT_NAME
           kubectl get services -o wide
       
