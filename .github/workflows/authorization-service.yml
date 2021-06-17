@@ -178,6 +178,9 @@ jobs:
           service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
           project_id: s64-1-vetis
           export_default_credentials: true
+
+      - run: |-
+          gcloud auth list    
     # Get the GKE credentials so we can deploy to the cluster
       - run: |-
           gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
