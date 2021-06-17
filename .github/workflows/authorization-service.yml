@@ -176,8 +176,10 @@ jobs:
           location: europe-west1-b
           credentials: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
 
+        # Configure Docker to use the gcloud command-line tool as a credential
+        # helper for authentication
       - run: |-
-          gcloud config set account ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
+          gcloud --quiet auth configure-docker
     # Get the GKE credentials so we can deploy to the cluster
       - run: |-
           gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
