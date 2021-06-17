@@ -179,12 +179,17 @@ jobs:
           project_id: s64-1-vetis
           export_default_credentials: true
 
-      - run: |-
-          gcloud auth list    
-    # Get the GKE credentials so we can deploy to the cluster
-      - run: |-
-          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+      - id: get-credentials
+        uses: GoogleCloudPlatform/github-actions/get-gke-credentials@master
+        with:
+          cluster_name: ca-cluster
+          location: us-central1-a
+          credentials: ${{ secrets.GCLOUD_SERVICE_ID }}
 
+      # The KUBECONFIG env var is automatically exported and picked up by kubectl.
+      - id: get-pods
+        run: kubectl get pods  
+        
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
