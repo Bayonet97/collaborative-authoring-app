@@ -194,5 +194,5 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-         kubectl apply -f ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml
+         kubectl apply -k ./../kubernetes/services/authorization-service/ca-authorization-service.kustomization.yaml
       
