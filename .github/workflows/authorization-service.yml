@@ -174,7 +174,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           version: '270.0.0'
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+          service_account_key: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
           project_id: s64-1-vetis
 
       - id: get-credentials
@@ -186,7 +186,7 @@ jobs:
 
       - run: |-
           gcloud --quiet auth configure-docker
-          
+
     # Get the GKE credentials so we can deploy to the cluster
       - run: |-
           gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
