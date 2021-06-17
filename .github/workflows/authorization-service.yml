@@ -176,6 +176,10 @@ jobs:
           location: europe-west1-b
           credentials: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
 
+    # Get the GKE credentials so we can deploy to the cluster
+      - run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+          
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
