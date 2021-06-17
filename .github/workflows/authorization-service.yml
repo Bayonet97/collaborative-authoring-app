@@ -169,13 +169,27 @@ jobs:
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
+      - name: Configure Google Auth
+      # Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: '270.0.0'
+          service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+          project_id: s64-1-vetis
+
       - id: get-credentials
         uses: google-github-actions/get-gke-credentials@main
         with:
           cluster_name: ca-cluster
           location: europe-west1-b
-          credentials: ${{ secrets.GCLOUD_SERVICE_ID }}
+          credentials: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
 
+      - run: |-
+          gcloud --quiet auth configure-docker
+          
+    # Get the GKE credentials so we can deploy to the cluster
+      - run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
