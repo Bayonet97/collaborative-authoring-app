@@ -12,6 +12,13 @@ on:
     paths:
       - src/Services/RemarkService/**
 
+env:
+  PROJECT_ID: s64-1-vetis
+  GKE_CLUSTER: ca-cluster    # TODO: update to cluster name
+  GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
+  DEPLOYMENT_NAME: ca-remark-service # TODO: update to deployment name
+  IMAGE: static-site
+
 defaults:
   run:
     working-directory: src
@@ -20,11 +27,20 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     steps:
     # Checks out the code
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Configure Google Auth
+    # Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+        project_id: s64-1-vetis
 
     # Sets up the .NET SDK
     - name: Setup .NET SDK
@@ -43,7 +59,8 @@ jobs:
   test:
     needs: build
     name: Test
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     steps:
     # Checks out the code
     - name: Checkout
@@ -55,7 +72,8 @@ jobs:
 
   semver:
     name: Calculate SemVer version
-    runs-on: ubuntu-latest
+    # To prevent bugs in case latest has breaking changes
+    runs-on: ubuntu-20.04
     outputs:
       SEMVER: ${{ steps.fixsemver.outputs.SEMVER }}
     steps:
@@ -102,19 +120,24 @@ jobs:
         key: ${{ runner.os }}-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-
-    - name: Login to Google Docker registry
+
+    - name: Configure Google Auth
     # Setup gcloud CLI
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      uses: google-github-actions/setup-gcloud@master
       with:
         version: '270.0.0'
-        service_account_key: ${{ secrets.DOCKER_PASSWORD }} 
-    - name: Configure Google Auth
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ID }}
+        project_id: s64-1-vetis
+
     # Configure docker to use the gcloud command-line tool as a credential helper
-      run: |
+    - run: |
         # Set up docker to authenticate
         # via gcloud command-line tool.
-        gcloud auth configure-docker
-    
+        gcloud --quiet auth configure-docker
+
+#    - run: |-
+#        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
     - name: Build and push RemarkService Docker image 
       run: |
         echo "Building RemarkService docker image"
@@ -130,27 +153,46 @@ jobs:
     env:
       SEMVER: ${{ needs.semver.outputs.SEMVER }}
     environment:
-      name: production
-    runs-on: ubuntu-latest
+      name: docker
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Update manifest tags
         run: |
-          sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../kubernetes/services/remark-service/ca-remark-service.deployment.yaml
-      
-      - name: Set kubernetes context
-        uses: azure/k8s-set-context@v1
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          context: ca
+          sed -i'' -e 's/:latest/:${{ env.SEMVER }}/g' ./../kubernetes/services/remark-service/kustomization.yaml
+    
+    # Set up kustomize
+      - name: Set up Kustomize
+        run: |-
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
 
-      - name: Deploy services
-        uses: jtalk/k8s-deploy@v2
+      - name: Configure Google Auth
+      # Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
         with:
-          namespace: collaborative-authoring
-          manifests: |
-            ./kubernetes/services/remark-service/ca-remark-service.deployment.yaml
+          version: '270.0.0'
+          service_account_key: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
+          project_id: s64-1-vetis
+
+      - id: get-credentials
+        uses: google-github-actions/get-gke-credentials@main
+        with:
+          cluster_name: ca-cluster
+          location: europe-west1-b
+          credentials: ${{ secrets.GCLOUD_DEPLOY_SERVICE_KEY }}
+
+      - run: |-
+          gcloud --quiet auth configure-docker
+
+    # Get the GKE credentials so we can deploy to the cluster
+      - run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |-
+         kubectl apply -k ./../kubernetes/services/remark-service/
       
