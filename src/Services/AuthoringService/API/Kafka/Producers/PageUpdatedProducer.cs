@@ -21,7 +21,7 @@ namespace CA.Services.AuthoringService.API.Kafka.Producers
             _producer = new ProducerBuilder<Null, string>(_producerConfig).Build();
         }
 
-        public override async Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             // This is test code that runs on start
             for (int i = 0; i < 10; i++)
@@ -38,7 +38,7 @@ namespace CA.Services.AuthoringService.API.Kafka.Producers
             _producer.Flush(TimeSpan.FromSeconds(10));
         }
 
-        public override Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             // Destroy the producer when done.
             _producer?.Dispose();
