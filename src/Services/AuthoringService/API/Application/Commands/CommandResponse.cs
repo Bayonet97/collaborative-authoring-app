@@ -10,6 +10,9 @@ namespace CA.Services.AuthoringService.API.Application.Commands
     /// </summary>
     public sealed record CommandResponse : Response
     {
-
+        public static explicit operator CommandResponse(Task<object> v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

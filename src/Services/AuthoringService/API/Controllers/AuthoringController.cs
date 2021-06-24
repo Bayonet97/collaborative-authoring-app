@@ -1,5 +1,6 @@
 ﻿using CA.Services.AuthoringService.API.Application.Commands;
 using CA.Services.AuthoringService.API.Application.Commands.CreateBookCommand;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,13 @@ namespace CA.Services.AuthoringService.API.Controllers
     [ApiController]
     public class AuthoringController : ControllerBase
     {
+        protected readonly IMediator _mediator;
+
+        protected AuthoringController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
         // GET: api/<AuthoringRestController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -46,7 +54,7 @@ namespace CA.Services.AuthoringService.API.Controllers
             if (command.UserId != userId)
                 return UnauthorizedCommand();
 
-            CommandResponse commandResponse = await _mediator.Send(command);
+            CommandResponse commandResponse = (CommandResponse)await _mediator.Send(command);
             return commandResponse.Success
                 ? new OkObjectResult(commandResponse)
                 : BadRequest(commandResponse);
