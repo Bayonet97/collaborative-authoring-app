@@ -54,7 +54,7 @@ namespace CA.Services.AuthoringService.API.Controllers
             if (command.UserId != userId)
                 return UnauthorizedCommand();
 
-            CommandResponse commandResponse = (CommandResponse)await _mediator.Send(command);
+            CommandResponse commandResponse = await _mediator.Send(command);
             return commandResponse.Success
                 ? new OkObjectResult(commandResponse)
                 : BadRequest(commandResponse);

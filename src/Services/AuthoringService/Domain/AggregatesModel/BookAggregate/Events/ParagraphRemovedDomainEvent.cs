@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Services.AuthoringService.Domain.AggregatesModel.PageEditAggregate
+namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate.Events
 {
-    class Page
+    class ParagraphRemovedDomainEvent
     {
     }
 }
