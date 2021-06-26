@@ -32,12 +32,39 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             }
         }
 
+        public virtual IReadOnlyCollection<Guid> CollaboratorIds => collaboratorIds;
+
+        public string BookTitle
+        {
+            get => bookTitle;
+            private set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new BookDomainException("The book title is null, empty or contains only whitespaces.");
+                bookTitle = value;
+            }
+        }
         /// <summary>
         /// Gets a read only set of pages.
         /// </summary>
         public virtual IReadOnlyCollection<Page> Pages => pages;
 
-        internal Page AddPage()
+        public bool AddCollaborator(Guid collaboratorId)
+        {
+            if(collaboratorId == Guid.Empty) 
+            {
+                throw new BookDomainException("The collaborator id is empty.");
+            }
+            else if (collaboratorIds.Contains(collaboratorId))
+            {
+                return default;
+            }
+
+            collaboratorIds.Add(collaboratorId);
+            return true;
+        }
+
+        public Page AddPage()
         {
             Page page = new(this);
             if (Pages.Contains(page))
@@ -46,7 +73,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             return page;
         }
 
-        internal Page RemovePage()
+        public Page RemovePage()
         {
             Page page = Pages.LastOrDefault(page => page.Paragraphs.Count() > 0);
 
