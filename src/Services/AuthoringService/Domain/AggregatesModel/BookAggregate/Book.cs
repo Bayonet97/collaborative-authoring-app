@@ -13,9 +13,9 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         public Guid Id { get; protected set; }
 
         private Guid ownerId;
-        private List<Guid> collaboratorIds;
+        private List<Guid> collaboratorIds = new();
         private string bookTitle;
-        private LinkedList<Page> pages;
+        private LinkedList<Page> pages = new();
 
 
         /// <summary>
@@ -49,6 +49,18 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         /// </summary>
         public virtual IReadOnlyCollection<Page> Pages => pages;
 
+        public Book()
+        {
+
+        }
+
+        public Book(Guid bookId, Guid owner, string title)
+        {
+            Id = bookId;
+            OwnerId = owner;
+            BookTitle = title;
+        }
+
         public bool AddCollaborator(Guid collaboratorId)
         {
             if(collaboratorId == Guid.Empty) 
@@ -66,7 +78,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         public Page AddPage()
         {
-            Page page = new(this);
+            Page page = new(Guid.NewGuid(), this);
             if (Pages.Contains(page))
                 return default;
             pages.AddLast(page);
@@ -75,7 +87,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         public Page RemovePage()
         {
-            Page page = Pages.LastOrDefault(page => page.Paragraphs.Count() > 0);
+            Page page = Pages.LastOrDefault();
 
             if (page == default)
                 return default;

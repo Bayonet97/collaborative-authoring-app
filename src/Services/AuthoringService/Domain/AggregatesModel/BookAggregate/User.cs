@@ -31,6 +31,19 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             }
         }
 
+        public User()
+        {
+
+        }
+
+        public User(Guid guid, string _userName)
+        {
+            Id = guid;
+            UserName = _userName;
+        }
+
+
+
     }
 
 }

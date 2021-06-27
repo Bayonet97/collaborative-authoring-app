@@ -11,8 +11,15 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 {
     public class Page
     {
+        public Guid Id;
         private Guid bookId;
-        private ConcurrentDictionary<short, Paragraph> paragraphs;
+        private string text;
+        private List<Remark> remarks;
+
+        public string Text 
+        { 
+            get => text;
+        }
 
         public Guid BookId
         {
@@ -25,60 +32,75 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
                 }
             }
         }
-        public virtual IReadOnlyDictionary<short, Paragraph> Paragraphs => paragraphs;
 
-        public int ParagraphCount => paragraphs.Count;
+        public List<Remark> Remarks
+        {
+            get => remarks;
+        }
 
         protected Page() { }
 
-        public Page(Book book)
+        public Page(Guid id, Book book)
         {
+            Id = id;
             bookId = book.Id;
         }
-        
-        public async Task<Paragraph> AddParagraph(Guid paragraphId, short position)
+  
+        public string AddText(string letters, int position)
         {
-            if(paragraphId == Guid.Empty)
+            if (String.IsNullOrEmpty(letters))
             {
-                throw new BookDomainException("Paragraph id is empty.");
-            }
-            if(paragraphs.Count == 0 && position > 0)
-            {
-                position = 0;
-            } else if(paragraphs.Count <= position)
-            {
-                position = Convert.ToInt16(paragraphs.Count - 1);
+                return default;
             }
 
-            Paragraph paragraph = new(paragraphId);
+            if(position >= Text.Length)
+            {
+                position = Text.Length - 1;
+            }
 
+            text.Insert(position, letters);
 
-            //await MoveParagraphPositions(position);
+            // Fire text edited event.
 
-            paragraphs.TryAdd(position, paragraph);
-
-            return paragraph;
+            return Text;
         }
 
-/*        private Task MoveParagraphPositions(short newParagraphPosition)
+        public string RemoveText(int amount, int position)
         {
-            foreach(short position in paragraphs.Keys)
+            if(amount == 0)
             {
-                if(position >= newParagraphPosition)
-                {
-                    paragraphs.AddOrUpdate(position, )
-                }
-            }
-        }*/
-
-        public bool RemoveParagraph(short paragraphPosition)
-        {
-            if (paragraphPosition >= paragraphs.Count)
-            {
-                throw new BookDomainException("Paragraph to remove doesn't exist.");
+                return default;
             }
 
-            bool success = paragraphs.Remove(paragraphPosition, out _);
+            if(position >= Text.Length)
+            {
+                return default;
+            }
+
+            text.Remove(position, amount);
+
+            // Fire text edited event.
+
+            return Text;
+        }
+
+        public Remark AddRemark(Guid id, string remarkedText, int[,] position, Page page)
+        {
+            Remark r = new(id, remarkedText, position, page);
+
+            return r;
+        }
+
+        public bool RemoveRemark(Guid id)
+        {
+            Remark r = remarks.Find(r => r.Id == id);
+
+            if(r == null)
+            {
+                throw new BookDomainException("Remark doesn't exist.");
+            }
+
+            bool success =  remarks.Remove(r);
 
             return success;
         }

@@ -16,6 +16,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CA.Services.AuthoringService.API.Middleware;
 using CA.Services.AuthoringService.API.Controllers;
+using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
+using CA.Services.AuthoringService.Infrastructure.Repositories;
+using MediatR;
+using System.Reflection;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -33,9 +37,9 @@ namespace CA.Services.AuthoringService.API
         {
 
             services.AddControllers();
-
+            services.AddMediatR(Assembly.GetAssembly(typeof(Startup)));
+            services.AddSingleton<IBookRepository, BookRepository>();
             //services.AddWebSocketController();
-
             services.AddCors();
             services.AddSignalR();
         }

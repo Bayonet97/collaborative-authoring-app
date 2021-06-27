@@ -11,6 +11,8 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
     {
         Book Create(Book book);
 
+        public List<Book> FindAllByUserId(Guid userId);
+        
         ValueTask<Book> FindAsync(Guid bookId, CancellationToken cancellation);
 
         Book Update(Book book);

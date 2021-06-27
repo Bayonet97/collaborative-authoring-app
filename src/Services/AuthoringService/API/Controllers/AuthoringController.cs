@@ -1,5 +1,7 @@
 ﻿using CA.Services.AuthoringService.API.Application.Commands;
 using CA.Services.AuthoringService.API.Application.Commands.CreateBookCommand;
+using CA.Services.AuthoringService.API.Application.Queries;
+using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,14 +15,14 @@ using System.Threading.Tasks;
 
 namespace CA.Services.AuthoringService.API.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthoringController : ControllerBase
     {
-        protected readonly IMediator _mediator;
+        private readonly IMediator _mediator;
 
-        protected AuthoringController(IMediator mediator)
+        public AuthoringController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -33,10 +35,11 @@ namespace CA.Services.AuthoringService.API.Controllers
         }
 
         // GET api/<AuthoringRestController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAsync(Guid userId)
         {
-            return "value";
+            List<Book> books = await _mediator.Send(new GetBooksQuery(userId));
+            return new OkObjectResult(books);
         }
 
         /// <summary>
