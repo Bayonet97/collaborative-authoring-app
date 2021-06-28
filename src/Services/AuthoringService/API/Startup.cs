@@ -37,6 +37,10 @@ namespace CA.Services.AuthoringService.API
         {
 
             services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthoringApi", Version = "v1" });
+            });
             services.AddMediatR(Assembly.GetAssembly(typeof(Startup)));
             services.AddSingleton<IBookRepository, BookRepository>();
             //services.AddWebSocketController();
@@ -50,6 +54,8 @@ namespace CA.Services.AuthoringService.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthoringApi"));
             }
             
             app.UseRouting();

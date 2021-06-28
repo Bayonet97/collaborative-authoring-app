@@ -59,6 +59,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             Id = bookId;
             OwnerId = owner;
             BookTitle = title;
+            AddPage();
         }
 
         public bool AddCollaborator(Guid collaboratorId)

@@ -11,5 +11,7 @@ namespace CA.Services.AuthoringService.API.Application.Commands.CreateBookComman
         public Guid UserId { get; init; }
 
         public string Title { get; init; }
+
+
     }
 }

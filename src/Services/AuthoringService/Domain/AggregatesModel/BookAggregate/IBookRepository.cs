@@ -9,16 +9,18 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 {
     public interface IBookRepository
     {
-        Book Create(Book book);
+        Task<bool> CreateAsync(Book book);
 
-        public List<Book> FindAllByUserId(Guid userId);
+        public Task<List<Book>> FindAllByUserId(Guid userId);
         
         ValueTask<Book> FindAsync(Guid bookId, CancellationToken cancellation);
 
-        Book Update(Book book);
+        ValueTask<bool> UpdateAsync(Book book);
 
         List<Page> UpdatePages(List<Page> pages);
 
         Page UpdatePage(Page page);
+
+        Task<bool> AddCollaborator(Guid bookId, Guid userId);
     }
 }

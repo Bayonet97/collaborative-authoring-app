@@ -1,6 +1,8 @@
 ﻿using CA.Services.AuthoringService.API.Application.Commands;
+using CA.Services.AuthoringService.API.Application.Commands.AddCollaboratorCommand;
 using CA.Services.AuthoringService.API.Application.Commands.CreateBookCommand;
 using CA.Services.AuthoringService.API.Application.Queries;
+using CA.Services.AuthoringService.API.Application.Queries.GetBooksQuery;
 using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -38,8 +40,10 @@ namespace CA.Services.AuthoringService.API.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAsync(Guid userId)
         {
-            List<Book> books = await _mediator.Send(new GetBooksQuery(userId));
-            return new OkObjectResult(books);
+            GetBooksQuery query = new(userId);
+            QueryResponse<IEnumerable<Book>> queryResponse = await _mediator.Send(query);
+
+            return new OkObjectResult(queryResponse);
         }
 
         /// <summary>
@@ -47,15 +51,15 @@ namespace CA.Services.AuthoringService.API.Controllers
         /// </summary>
         /// <param name="command">The create book command.</param>
         /// <returns>Returns the command response.</returns>
-        [HttpPost("CreateBook")]
+        [HttpPost()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateBookAsync(CreateBookCommand command)
+        public async Task<IActionResult> CreateAsync(CreateBookCommand command)
         {
-            Guid userId = Guid.Parse(HttpContext.User.Claims.Single(claim => claim.Type == "UserId").Value);
-            if (command.UserId != userId)
-                return UnauthorizedCommand();
+           // Guid userId = Guid.Parse(HttpContext.User.Claims.Single(claim => claim.Type == "UserId").Value);
+            //if (command.UserId != userId)
+             //   return UnauthorizedCommand();
 
             CommandResponse commandResponse = await _mediator.Send(command);
             return commandResponse.Success
@@ -63,6 +67,28 @@ namespace CA.Services.AuthoringService.API.Controllers
                 : BadRequest(commandResponse);
         }
 
+        /// <summary>
+        /// Create a book asynchronously through the create book command.
+        /// </summary>
+        /// <param name="command">The create book command.</param>
+        /// <returns>Returns the command response.</returns>
+        [HttpPut("AddCollaborator")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddCollaboratorAsync(AddCollaboratorCommand command)
+        {
+            // Guid userId = Guid.Parse(HttpContext.User.Claims.Single(claim => claim.Type == "UserId").Value);
+            //if (command.UserId != userId)
+            //   return UnauthorizedCommand();
+
+            CommandResponse commandResponse = await _mediator.Send(command);
+            return commandResponse.Success
+                ? new OkObjectResult(commandResponse)
+                : BadRequest(commandResponse);
+
+
+        }
         // PUT api/<AuthoringRestController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
