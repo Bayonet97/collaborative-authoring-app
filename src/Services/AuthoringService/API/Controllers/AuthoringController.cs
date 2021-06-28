@@ -57,7 +57,7 @@ namespace CA.Services.AuthoringService.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateAsync(CreateBookCommand command)
         {
-           // Guid userId = Guid.Parse(HttpContext.User.Claims.Single(claim => claim.Type == "UserId").Value);
+            //Guid userId = Guid.Parse(HttpContext.User.Claims.Single(claim => claim.Type == "UserId").Value);
             //if (command.UserId != userId)
              //   return UnauthorizedCommand();
 

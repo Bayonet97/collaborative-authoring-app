@@ -20,14 +20,13 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
         }
         public BookRepository()
         {
-            User owner = new(Guid.NewGuid(), "BookOwner");
-            User collaborator = new(Guid.NewGuid(), "BookCollaborator");
+            User owner = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3"), "BookOwner");
+            User collaborator = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e4"), "BookCollaborator");
     
-            books.Add(new Book(Guid.NewGuid(), owner.Id, "Lord of the Cars"));
+            books.Add(new Book(Guid.Parse("910a9dff-7b21-46c6-9e80-090793cf1d0f"), owner.Id, "Lord of the Cars"));
             books[0].AddCollaborator(collaborator.Id);
-            books[0].AddPage();
 
-            Console.WriteLine($"Owner: {owner.Id}, Collaborator: {collaborator.Id}");
+            Console.WriteLine($"Owner: {owner.Id}, Collaborator: {collaborator.Id}, Page: {books[0].Pages.First().Id}");
 
         }
 

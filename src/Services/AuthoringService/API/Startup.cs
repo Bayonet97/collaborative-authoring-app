@@ -46,6 +46,7 @@ namespace CA.Services.AuthoringService.API
             //services.AddWebSocketController();
             services.AddCors();
             services.AddSignalR();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,10 +60,9 @@ namespace CA.Services.AuthoringService.API
             }
             
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             
-            // SignalR
             app.UseCors(builder => builder
             .WithOrigins("null")
             .AllowAnyHeader()
@@ -71,28 +71,11 @@ namespace CA.Services.AuthoringService.API
             .AllowCredentials()
             );
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<AuthoringSignalRController>("/authoring");
-            });
-            // End SignalR
-
-            // Websockets
-/*            app.UseWebSockets();
-
-            app.UseWebsocketServer();
-
-            app.Run(async context =>
-            {
-                Console.WriteLine("Websocktet Run delegate");
-                await context.Response.WriteAsync("Websocktet Run delegate.");
-            });*/
-            // End websockets
-
             app.UseHttpsRedirection();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<AuthoringHub>("/api/authoring/live");
                 endpoints.MapControllers();
             });
         }
