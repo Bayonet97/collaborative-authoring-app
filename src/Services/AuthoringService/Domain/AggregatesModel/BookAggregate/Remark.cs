@@ -10,11 +10,12 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 {
     public class Remark
     {
-        public Guid Id;
+        public Guid Id { get; }
 
         private string text;
 
-        private (int start, int end) position;
+        private int startPosition;
+        private int endPosition;
 
         private Guid pageId;
 
@@ -25,7 +26,8 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             get => text;
         }
 
-        public (int,int) Position { get => position; }
+        public int StartPosition { get => startPosition; }
+        public int EndPosition { get => endPosition; }
 
         public Remark()
         {
@@ -36,19 +38,20 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         {
             Id = guid;
             text = _text;
-            position = _position;
+            startPosition = _position.Item1;
+            endPosition = _position.Item2;
             PageId = _page.Id;
             _page.TextChangedEvent += ValidatePosition;
         }
 
         private void ValidatePosition(object sender, TextChangedDomainEvent textChangeEvent)
         {
-            if(position.start > textChangeEvent.Position)
+            if(startPosition > textChangeEvent.Position)
             {
                 int addedCount = textChangeEvent.NewText.Length;
-                UpdatePosition((position.start + addedCount, position.end + addedCount));
+                UpdatePosition((startPosition + addedCount, endPosition + addedCount));
             }
-            if(position.start <= textChangeEvent.Position && position.end >= textChangeEvent.Position)
+            if(startPosition <= textChangeEvent.Position && endPosition >= textChangeEvent.Position)
             {
                 char[] chars = text.ToCharArray();
                 int shortest = Math.Min(Text.Length, textChangeEvent.NewText.Length);
@@ -67,14 +70,16 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         public void UpdatePosition((int,int) newPosition)
         {
-            position = newPosition;
+            startPosition = newPosition.Item1;
+            endPosition = newPosition.Item2;
             RemarkChangedDomainEvent.RemarkChanged(this);
         }
 
         public void UpdateText(string newText, (int,int) newPosition)
         {
             text = newText;
-            position = newPosition;
+            startPosition = newPosition.Item1;
+            endPosition = newPosition.Item2;
             RemarkChangedDomainEvent.RemarkChanged(this);
         }
 
