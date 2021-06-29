@@ -17,6 +17,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         ValueTask<bool> UpdateAsync(Book book);
 
+        ValueTask<Page> FindPageAsync(Guid pageId, Guid bookId);
         List<Page> UpdatePages(List<Page> pages);
 
         Page UpdatePage(Page page);

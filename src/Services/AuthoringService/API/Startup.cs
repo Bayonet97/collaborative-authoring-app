@@ -20,6 +20,10 @@ using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
 using CA.Services.AuthoringService.Infrastructure.Repositories;
 using MediatR;
 using System.Reflection;
+using CA.Services.AuthoringService.API.Kafka.Producers;
+using CA.Services.AuthoringService.API.Application.Integration;
+using CA.Services.AuthoringService.API.Application.Commands;
+using CA.Services.AuthoringService.API.Application.DomainEventHandlers;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -42,7 +46,11 @@ namespace CA.Services.AuthoringService.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthoringApi", Version = "v1" });
             });
             services.AddMediatR(Assembly.GetAssembly(typeof(Startup)));
+            services.AddScoped(typeof(INotificationHandler<>), typeof(AnyDomainEventHandler<>));
             services.AddSingleton<IBookRepository, BookRepository>();
+            RemarkChangedProducer remarkChangedProducer = new();
+            services.AddSingleton<RemarkChangedProducer>(remarkChangedProducer);
+
             //services.AddWebSocketController();
             services.AddCors();
             services.AddSignalR();

@@ -77,6 +77,13 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             return true;
         }
 
+        public bool UpdatePage(Page page)
+        {
+            pages.Find(page).Value = page;
+
+            return true;
+        }
+
         public Page AddPage()
         {
             Page page = new(Guid.NewGuid(), this);

@@ -1,6 +1,8 @@
+using CA.Services.AuthoringService.API.Kafka.Producers;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,12 +18,17 @@ namespace CA.Services.AuthoringService.API
         {
             CreateHostBuilder(args).Build().Run();
         }
-
+            
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    
+                })
+                .ConfigureServices((context, collection) =>
+                {
+                    collection.AddHostedService<RemarkChangedProducer>();
                 });
     }
 }

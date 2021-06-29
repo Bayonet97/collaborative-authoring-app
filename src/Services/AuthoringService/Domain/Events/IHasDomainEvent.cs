@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Services.AuthoringService.Domain.Common
+namespace CA.Services.AuthoringService.Domain.Events
 {
     public interface IHasDomainEvent
     {
-        public List<DomainEvent> DomainEvents { get; set; }
+        public List<Event> DomainEvents { get; set; }
     }
 }

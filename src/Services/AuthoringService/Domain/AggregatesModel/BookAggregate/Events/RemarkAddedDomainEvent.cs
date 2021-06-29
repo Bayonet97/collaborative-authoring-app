@@ -1,4 +1,4 @@
-﻿using CA.Services.AuthoringService.Domain.Common;
+﻿using CA.Services.AuthoringService.Domain.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate.Events
 {
-    class PageEditedDomainEvent : DomainEvent
+    public class RemarkAddedDomainEvent : Event
     {
-        public Page Page { get; }
+        public Remark Remark { get; }
 
-        public PageEditedDomainEvent(Page page)
+        public RemarkAddedDomainEvent(Remark remark)
         {
-            Page = page;
+            Remark = remark;
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CA.Services.AuthoringService.API.Kafka.Producers
 {
-    public class PageUpdatedProducer : KafkaProducerBase
+    public class PageUpdatedProducer : KafkaProducerBase, IHostedService
     {
         private readonly ILogger<PageUpdatedProducer> _logger;
         private IProducer<Null, string> _producer;

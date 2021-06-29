@@ -1,4 +1,5 @@
 ﻿using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
+using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,8 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
     
             books.Add(new Book(Guid.Parse("910a9dff-7b21-46c6-9e80-090793cf1d0f"), owner.Id, "Lord of the Cars"));
             books[0].AddCollaborator(collaborator.Id);
-
+            Page page = books[0].Pages.First();
+            page.AddRemark(new Remark(Guid.Parse("9557f61d-a085-45fd-b678-0f3c1ac39192"), "This text is remarked.", (1,5), page));
             Console.WriteLine($"Owner: {owner.Id}, Collaborator: {collaborator.Id}, Page: {books[0].Pages.First().Id}");
 
         }
@@ -75,6 +77,16 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
         public Task<bool> AddCollaborator(Guid bookId, Guid userId)
         {
             throw new NotImplementedException();
+        }
+
+        public async ValueTask<Page> FindPageAsync(Guid pageId, Guid bookId)
+        {
+            Page page = await Task.Run(() => books.Where(b => b.Id == bookId).SingleOrDefault().Pages.Where(p => pageId == p.Id).SingleOrDefault());
+
+            if(page == default) { throw new Exception("Page doesnt exist"); }
+
+            return page;
+
         }
     }
 }

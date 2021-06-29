@@ -8,29 +8,32 @@ using Microsoft.AspNetCore.Http;
 using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
 using CA.Services.AuthoringService.API.Middleware;
 using System.Threading;
+using MediatR;
+using CA.Services.AuthoringService.API.Application.Commands.ChangePageCommand;
+using CA.Services.AuthoringService.API.Application.Commands;
+
 namespace CA.Services.AuthoringService.API.Controllers
 {
     public class AuthoringHub : Hub
     {
-        public static Dictionary<Book, string> BookGroup = new Dictionary<Book, string>();
-        private readonly IBookRepository bookRepository;
+        public static Dictionary<Guid, string> BookGroups = new Dictionary<Guid, string>();
+        private readonly IMediator mediator;
 
-        public AuthoringHub(IBookRepository bookRepository)
+        public AuthoringHub(IMediator mediator)
         {
-            this.bookRepository = bookRepository;
+            this.mediator = mediator;
         }
         public async Task Connect(string connectionJson)
         {
             //Guid userId = Guid.Parse(Context.User.Claims.Single(claim => claim.Type == "UserId").Value);
 
             Connection connection = JsonConvert.DeserializeObject<Connection>(connectionJson);
-            Book book = BookGroup.Keys.Where(b => b.Id == connection.BookId).FirstOrDefault();
-            if (book == null)
+            if (!BookGroups.ContainsKey(connection.BookId))
             {
-                book = await bookRepository.FindAsync(connection.BookId, CancellationToken.None);
-                BookGroup.Add(book, book.Id.ToString());
+                BookGroups.Add(connection.BookId, connection.BookId.ToString());
             }
-            await Groups.AddToGroupAsync(Context.ConnectionId, book.Id.ToString());
+            BookGroups.TryGetValue(connection.BookId, out string bookId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, bookId);
         }
 
         public override Task OnConnectedAsync()
@@ -58,16 +61,15 @@ namespace CA.Services.AuthoringService.API.Controllers
         public async Task SendMessageAsync(string pageChangesJson)
         {
             //TODO: Replace dynamic with concrete class
-            PageChanges pageChanges = JsonConvert.DeserializeObject<PageChanges>(pageChangesJson);
+            ChangePageCommand changePageCommand = JsonConvert.DeserializeObject<ChangePageCommand>(pageChangesJson);
 
-            
-            if(pageChanges.PageChangeType == PageChangeType.ADDITION)
-            {
-
-            }
+            CommandResponse commandResponse = await mediator.Send(changePageCommand);
             Console.WriteLine("Message Received on: " + Context.ConnectionId);
-
-            await Clients.Group(pageChanges.BookId.ToString()).SendAsync("BookChanged", pageChangesJson);
+            if (!commandResponse.Success)
+            {
+                await Clients.Caller.SendAsync("BookChanged", "Failed to save changes");
+            }
+            await Clients.Group(changePageCommand.BookId.ToString()).SendAsync("BookChanged", pageChangesJson);
         }
     }
 }

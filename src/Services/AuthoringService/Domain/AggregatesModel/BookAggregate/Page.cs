@@ -1,4 +1,5 @@
-﻿using CA.Services.AuthoringService.Domain.Exceptions;
+﻿using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate.Events;
+using CA.Services.AuthoringService.Domain.Exceptions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 {
     public class Page
     {
+        public event EventHandler<TextChangedDomainEvent> TextChangedEvent;
+        public event EventHandler<RemarkAddedDomainEvent> RemarkAddedDomainEvent;
         public Guid Id;
         private Guid bookId;
         private string text;
-        private List<Remark> remarks;
+        private List<Remark> remarks = new List<Remark>();
 
         public string Text 
         { 
@@ -44,6 +47,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         {
             Id = id;
             bookId = book.Id;
+            text = String.Empty;
         }
   
         public string AddText(string letters, int position)
@@ -55,12 +59,19 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
             if(position >= Text.Length)
             {
-                position = Text.Length - 1;
+                if (Text.Length == 0)
+                {
+                    position = 0;
+                }
+                else
+                {
+                    position = Text.Length - 1;
+                }
             }
 
-            text.Insert(position, letters);
+            text = text.Insert(position, letters);
 
-            // Fire text edited event.
+            TextChangedEvent?.Invoke(this, new(this, letters, position, 0));
 
             return Text;
         }
@@ -79,16 +90,16 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
             text.Remove(position, amount);
 
-            // Fire text edited event.
+            TextChangedEvent?.Invoke(this, new(this, String.Empty, position, amount));
 
             return Text;
         }
 
-        public Remark AddRemark(Guid id, string remarkedText, int[,] position, Page page)
+        public Remark AddRemark(Remark remark)
         {
-            Remark r = new(id, remarkedText, position, page);
-
-            return r;
+            remarks.Add(remark);
+            RemarkAddedDomainEvent?.Invoke(this, new(remark));
+            return remark;
         }
 
         public bool RemoveRemark(Guid id)
