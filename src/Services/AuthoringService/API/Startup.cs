@@ -1,21 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using CA.Services.AuthoringService.API.Middleware;
 using CA.Services.AuthoringService.API.Controllers;
+using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
+using CA.Services.AuthoringService.Infrastructure.Repositories;
+using MediatR;
+using System.Reflection;
+using CA.Services.AuthoringService.API.Kafka.Producers;
+using CA.Services.AuthoringService.API.Application.Integration;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -33,11 +28,20 @@ namespace CA.Services.AuthoringService.API
         {
 
             services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthoringApi", Version = "v1" });
+            });
+            services.AddMediatR(Assembly.GetAssembly(typeof(Startup)));
+            services.AddScoped(typeof(INotificationHandler<>), typeof(AnyDomainEventHandler<>));
+            services.AddSingleton<IBookRepository, BookRepository>();
+            RemarkChangedProducer remarkChangedProducer = new();
+            services.AddSingleton<RemarkChangedProducer>(remarkChangedProducer);
 
             //services.AddWebSocketController();
-
             services.AddCors();
             services.AddSignalR();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,13 +50,14 @@ namespace CA.Services.AuthoringService.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthoringApi"));
             }
             
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             
-            // SignalR
             app.UseCors(builder => builder
             .WithOrigins("null")
             .AllowAnyHeader()
@@ -61,28 +66,11 @@ namespace CA.Services.AuthoringService.API
             .AllowCredentials()
             );
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<AuthoringSignalRController>("/authoring");
-            });
-            // End SignalR
-
-            // Websockets
-/*            app.UseWebSockets();
-
-            app.UseWebsocketServer();
-
-            app.Run(async context =>
-            {
-                Console.WriteLine("Websocktet Run delegate");
-                await context.Response.WriteAsync("Websocktet Run delegate.");
-            });*/
-            // End websockets
-
             app.UseHttpsRedirection();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<AuthoringHub>("/api/authoring/live");
                 endpoints.MapControllers();
             });
         }

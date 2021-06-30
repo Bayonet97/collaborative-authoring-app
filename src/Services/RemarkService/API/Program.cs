@@ -1,5 +1,7 @@
+using CA.Services.RemarkService.API.Kafka.Consumers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -21,6 +23,10 @@ namespace CA.Services.RemarkService.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices((context, collection) =>
+                {
+                    collection.AddHostedService<RemarkChangedConsumer>();
                 });
     }
 }

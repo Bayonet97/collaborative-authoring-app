@@ -43,6 +43,9 @@ spec:
         - name: ca-authorization-container
           image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-authorization-service:latest
           imagePullPolicy: Always
+          envFrom:
+          - secretRef:
+              name: ca-credentials
           resources:
             limits:
               memory: 250Mi
