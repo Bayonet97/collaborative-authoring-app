@@ -19,7 +19,7 @@ namespace CA.Services.AuthoringService.API.Application.Commands.CreateBookComman
 
         public async Task<CommandResponse> Handle(CreateBookCommand request, CancellationToken cancellationToken)
         {
-            Book book = new(Guid.NewGuid(), request.UserId, request.Title);
+            Book book = new(Guid.NewGuid(), request.UserId, request.Title, Guid.NewGuid());
 
             bool success = await _bookRepository.CreateAsync(book);
 

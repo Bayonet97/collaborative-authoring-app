@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
+using MediatR;
+using CA.Services.RemarkService.Domain.AggregatesModel.BookAggregate;
+using CA.Services.RemarkService.Infrastructure.Repositories;
 
 namespace CA.Services.RemarkService.API
 {
@@ -32,6 +29,10 @@ namespace CA.Services.RemarkService.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CA.Services.RemarkService.API", Version = "v1" });
             });
+            services.AddMediatR(Assembly.GetAssembly(typeof(Startup)));
+            services.AddSingleton<IBookRepository, BookRepository>();
+            services.AddCors();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,6 +51,14 @@ namespace CA.Services.RemarkService.API
 
             app.UseAuthorization();
 
+            app.UseCors(builder => builder
+            .WithOrigins("null")
+            .AllowAnyHeader()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            );
+            app.UseHttpsRedirection();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

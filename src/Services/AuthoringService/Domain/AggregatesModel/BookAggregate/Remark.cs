@@ -12,18 +12,20 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
     {
         public Guid Id { get; }
 
-        private string text;
+        private string remarkedText;
 
         private int startPosition;
         private int endPosition;
 
+        private Guid bookId;
         private Guid pageId;
 
+        public Guid BookId { get => bookId; set { bookId = value; } }
         public Guid PageId { get => pageId; set{ pageId = value; } }
 
-        public string Text
+        public string RemarkedText
         {
-            get => text;
+            get => remarkedText;
         }
 
         public int StartPosition { get => startPosition; }
@@ -37,10 +39,11 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         public Remark(Guid guid, string _text, (int,int) _position, Page _page)
         {
             Id = guid;
-            text = _text;
+            remarkedText = _text;
             startPosition = _position.Item1;
             endPosition = _position.Item2;
             PageId = _page.Id;
+            BookId = _page.BookId;
             _page.TextChangedEvent += ValidatePosition;
         }
 
@@ -53,17 +56,17 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             }
             if(startPosition <= textChangeEvent.Position && endPosition >= textChangeEvent.Position)
             {
-                char[] chars = text.ToCharArray();
-                int shortest = Math.Min(Text.Length, textChangeEvent.NewText.Length);
+                char[] chars = remarkedText.ToCharArray();
+                int shortest = Math.Min(RemarkedText.Length, textChangeEvent.NewText.Length);
                 for (int i = 0; i < shortest; i++)
                 {
-                    if(text[i] != textChangeEvent.NewText[i])
+                    if(remarkedText[i] != textChangeEvent.NewText[i])
                     {
                         chars[i] = textChangeEvent.NewText[i];
                     }
                 }
 
-                text = chars.ToString();
+                remarkedText = chars.ToString();
                 RemarkChangedDomainEvent.RemarkChanged(this);
             }
         }
@@ -77,7 +80,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         public void UpdateText(string newText, (int,int) newPosition)
         {
-            text = newText;
+            remarkedText = newText;
             startPosition = newPosition.Item1;
             endPosition = newPosition.Item2;
             RemarkChangedDomainEvent.RemarkChanged(this);

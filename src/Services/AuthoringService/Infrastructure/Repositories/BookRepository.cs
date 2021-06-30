@@ -24,10 +24,10 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
             User owner = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3"), "BookOwner");
             User collaborator = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e4"), "BookCollaborator");
     
-            books.Add(new Book(Guid.Parse("910a9dff-7b21-46c6-9e80-090793cf1d0f"), owner.Id, "Lord of the Cars"));
+            books.Add(new Book(Guid.Parse("910a9dff-7b21-46c6-9e80-090793cf1d0f"), owner.Id, "Lord of the Cars", Guid.Parse("c74f8e17-40ab-441b-aa27-6bd8dde8b61a")));
             books[0].AddCollaborator(collaborator.Id);
             Page page = books[0].Pages.First();
-            page.AddRemark(new Remark(Guid.Parse("9557f61d-a085-45fd-b678-0f3c1ac39192"), "This text is remarked.", (1,5), page));
+            page.AddRemark(new Remark(Guid.Parse("9557f61d-a085-45fd-b678-0f3c1ac39192"), "Hello.", (1,5), page));
             Console.WriteLine($"Owner: {owner.Id}, Collaborator: {collaborator.Id}, Page: {books[0].Pages.First().Id}");
 
         }

@@ -54,12 +54,12 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         }
 
-        public Book(Guid bookId, Guid owner, string title)
+        public Book(Guid bookId, Guid owner, string title, Guid firstPageId)
         {
             Id = bookId;
             OwnerId = owner;
             BookTitle = title;
-            AddPage();
+            AddPage(firstPageId);
         }
 
         public bool AddCollaborator(Guid collaboratorId)
@@ -84,9 +84,9 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             return true;
         }
 
-        public Page AddPage()
+        public Page AddPage(Guid pageId)
         {
-            Page page = new(Guid.NewGuid(), this);
+            Page page = new(pageId, this);
             if (Pages.Contains(page))
                 return default;
             pages.AddLast(page);
