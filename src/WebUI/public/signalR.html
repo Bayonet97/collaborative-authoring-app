@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <title>SignalR JavaScript Client</title>
+    <link href=/js/app.c92ac81e.js rel=preload as=script>
+    <link href=/js/chunk-vendors.eea5237c.js rel=preload as=script>
+</head>
+
+<body>
+    <h1>SignalR JavaScript Client</h1>
+    <p id=stateLabel>Ready to connect</p>
+    <p id=connIDLabel>ConnID: N/a</p>
+    <div>
+        <label for=connectionUrl>SignalR Server URL:</label>
+        <input id=connectionUrl size=30>
+        <button id=connectButton type=submit>Connect</button>
+        <button id=closeButton disabled>Close Socket</button>
+    </div>
+    <p></p>
+    <div>
+        <label for=sendMessage>Message:</label>
+        <input id=sendMessage disabled>
+        <button id=sendButton type=submit disabled>Send</button>
+    </div>
+    <p></p>
+    <div><label for=recipients>Recipient IDs:</label> <input id=recipients disabled></div>
+    <p></p>
+    <textarea id=textArea onkeyup="TextChanged(event)"></textarea>
+    <h2>Communication Log</h2>
+    <table style="width: 800px">
+        <thead>
+            <tr>
+                <td style="width: 100px">From</td>
+                <td style="width: 100px">To</td>
+                <td>Data</td>
+            </tr>
+        </thead>
+        <tbody id=commsLog></tbody>
+    </table>
+    <p></p>
+    <script src=/js/chunk-vendors.eea5237c.js></script>
+    <script src=/js/app.c92ac81e.js></script>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
+<script>//API Docs: https://docs.microsoft.com/en-us/javascript/api/%40aspnet/signalr/index?view=signalr-js-latest
+
+    "use strict";
+    var connectionUrl = document.getElementById("connectionUrl");
+    var connectButton = document.getElementById("connectButton");
+    var stateLabel = document.getElementById("stateLabel");
+    var sendMessage = document.getElementById("sendMessage");
+    var textArea = document.getElementById("textArea");
+    var sendButton = document.getElementById("sendButton");
+    var commsLog = document.getElementById("commsLog");
+    var closeButton = document.getElementById("closeButton");
+    var recipients = document.getElementById("recipients");
+    var connID = document.getElementById("connIDLabel");
+
+
+    connectionUrl.value = "http://localhost:5000/api/authoring/live";
+
+    var hubConnection = new signalR.HubConnectionBuilder().withUrl(connectionUrl.value).build();
+
+    //CONNECT BUTTON
+    connectButton.onclick = function () {
+        stateLabel.innerHTML = "Attempting to connect...";
+
+        hubConnection.start().then(function () {
+            updateState();
+
+            commsLog.innerHTML += '<tr>' +
+                '<td colspan="3" class="commslog-data">Connection opened</td>' +
+                '</tr>';
+        }).then(
+            function(){
+                var message = JSON.stringify({
+                    "UserId": "6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3",
+                    "BookId": "910a9dff-7b21-46c6-9e80-090793cf1d0f"
+                });
+                hubConnection.invoke("Connect", message);
+            }
+        );
+
+     
+    };
+
+    closeButton.onclick = function () {
+        if (!hubConnection || hubConnection.state !== "Connected") {
+            alert("Hub Not Connected");
+        }
+        hubConnection.stop().then(function () {
+
+        });
+    };
+
+    //CLOSE EVENT
+    hubConnection.onclose(function (event) {
+        updateState();
+        commsLog.innerHTML += '<tr>' +
+            '<td colspan="3" class="commslog-data">Connection disconnected </td>' +
+            '</tr>';
+    });
+
+
+    hubConnection.on("BookChanged", function (message) {
+        commsLog.innerHTML += '<tr>' +
+            '<td class="commslog-server">Server</td>' +
+            '<td class="commslog-client">Client</td>' +
+            '<td class="commslog-data">' + htmlEscape(message) + '</td></tr>';
+            var object = JSON.parse(message);
+            var txLength = textArea.value.length;
+            textArea.focus();
+            if(typeof document.selection != "undefined")
+            {
+            document.selection.createRange().text = object.Letters;
+            }
+            else
+            {
+            textArea.value = 
+            textArea.value.substring(0, object.Position - 1) +
+            object.Letters +
+            textArea.value.substring(object.Position - 1, txLength);
+            }
+    });
+
+    hubConnection.on("ReceiveConnID", function (connid) {
+        connID.innerHTML = "ConnID: " + connid;
+        commsLog.innerHTML += '<tr>' +
+            '<td colspan="3" class="commslog-data">Connection ID Received from Hub</td>' +
+            '</tr>';
+    });
+
+    function TextChanged(e) {
+
+        var message = JSON.stringify({
+            "UserId": "6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3",
+            "BookId": "910a9dff-7b21-46c6-9e80-090793cf1d0f",
+            "PageId": "c74f8e17-40ab-441b-aa27-6bd8dde8b61a",
+            "PageChangeType": "ADDITION",
+            "Letters": e.key,
+            "Position": textArea.selectionStart,
+            "Amount": 0
+        });
+        var txLength = textArea.value.length;
+            textArea.focus();
+            if(typeof document.selection != "undefined")
+            {
+            document.selection.createRange().text = object.Letters;
+            }
+            else
+            {
+            textArea.value = 
+            textArea.value.substring(0, textArea.selectionStart - 1)
+             +
+            textArea.value.substring(textArea.selectionStart, txLength);
+            }
+        hubConnection.invoke("SendMessageAsync", message);
+        console.debug("SendMessage Invoked, on ID: " + hubConnection.id);
+        commsLog.innerHTML += '<tr>' +
+            '<td class="commslog-client">Client</td>' +
+            '<td class="commslog-server">Server</td>' +
+            '<td class="commslog-data">' + htmlEscape(message) + '</td></tr>';
+        event.preventDefault();
+    };
+
+    function htmlEscape(str) {
+        return str.toString()
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function updateState() {
+        function disable() {
+            sendMessage.disabled = true;
+            sendButton.disabled = true;
+            closeButton.disabled = true;
+            recipients.disabled = true;
+
+        }
+        function enable() {
+            sendMessage.disabled = false;
+            sendButton.disabled = false;
+            closeButton.disabled = false;
+            recipients.disabled = false;
+
+        }
+        connectionUrl.disabled = true;
+        connectButton.disabled = true;
+        if (!hubConnection) {
+            disable();
+        } else {
+            switch (hubConnection.state) {
+                case "Disconnected":
+                    stateLabel.innerHTML = "Disconnected";
+                    connID.innerHTML = "ConnID: N/a"
+                    disable();
+                    connectionUrl.disabled = false;
+                    connectButton.disabled = false;
+                    break;
+                case "Connecting":
+                    stateLabel.innerHTML = "Connecting...";
+                    disable();
+                    break;
+                case "Connected":
+                    stateLabel.innerHTML = "Connected";
+                    enable();
+                    break;
+                default:
+                    stateLabel.innerHTML = "Unknown WebSocket State: " + htmlEscape(hubConnection.state);
+                    disable();
+                    break;
+            }
+        }
+    }</script>
+
+</html>

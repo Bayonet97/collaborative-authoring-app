@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
+import Authoring from "../views/Authoring.vue";
 import firebase from "firebase";
 Vue.use(VueRouter);
 
@@ -9,6 +10,11 @@ const routes = [
     path: "/",
     name: "Login",
     component: Login,
+  },  
+  {
+    path: "/",
+    name: "Authoring",
+    component: Authoring,
   },
   {
     path: "/home",
