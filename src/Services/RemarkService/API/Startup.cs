@@ -8,6 +8,8 @@ using System.Reflection;
 using MediatR;
 using CA.Services.RemarkService.Domain.AggregatesModel.BookAggregate;
 using CA.Services.RemarkService.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CA.Services.RemarkService.API
 {
@@ -33,6 +35,20 @@ namespace CA.Services.RemarkService.API
             services.AddSingleton<IBookRepository, BookRepository>();
             services.AddCors();
             services.AddHttpContextAccessor();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "https://securetoken.google.com/collaborative-authoring";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://securetoken.google.com/collaborative-authoring",
+                    ValidateAudience = true,
+                    ValidAudience = "collaborative-authoring",
+                    ValidateLifetime = true
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

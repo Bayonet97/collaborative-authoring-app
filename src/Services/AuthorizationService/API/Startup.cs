@@ -15,6 +15,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 namespace CA.Services.AuthorizationService.API
 {
@@ -49,6 +52,15 @@ namespace CA.Services.AuthorizationService.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CA.Services.AuthorizationService.API", Version = "v1" });
             });
+            var firebaseSettings = Configuration.GetSection("FirebaseConfig").GetChildren();
+            var configurationSections = firebaseSettings.ToList();
+            var json = JsonConvert.SerializeObject(configurationSections.AsEnumerable().ToDictionary(k => k.Key, v => v.Value));
+            var firebaseApp = FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromJson(json)
+            });
+
+            services.AddSingleton(firebaseApp);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
