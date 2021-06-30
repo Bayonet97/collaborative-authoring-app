@@ -11,6 +11,8 @@ using MediatR;
 using System.Reflection;
 using CA.Services.AuthoringService.API.Kafka.Producers;
 using CA.Services.AuthoringService.API.Application.Integration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CA.Services.AuthoringService.API
 {
@@ -42,6 +44,20 @@ namespace CA.Services.AuthoringService.API
             services.AddCors();
             services.AddSignalR();
             services.AddHttpContextAccessor();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = "https://securetoken.google.com/collaborative-authoring";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = "https://securetoken.google.com/collaborative-authoring",
+                        ValidateAudience = true,
+                        ValidAudience = "collaborative-authoring",
+                        ValidateLifetime = true
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,11 +69,11 @@ namespace CA.Services.AuthoringService.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthoringApi"));
             }
-            
+
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             app.UseCors(builder => builder
             .WithOrigins("null")
             .AllowAnyHeader()

@@ -5,6 +5,7 @@ using CA.Services.AuthoringService.API.Application.Queries;
 using CA.Services.AuthoringService.API.Application.Queries.GetBooksQuery;
 using CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +17,8 @@ using System.Threading.Tasks;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CA.Services.AuthoringService.API.Controllers
-{
-    [AllowAnonymous]
+{   
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthoringController : ControllerBase
@@ -95,10 +96,11 @@ namespace CA.Services.AuthoringService.API.Controllers
         {
         }
 
-        // DELETE api/<AuthoringRestController>/5
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator,Moderator")]
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+           
         }
 
         private IActionResult UnauthorizedCommand()
