@@ -10,6 +10,5 @@ namespace CA.Services.AuthorizationService.API.Application.Interfaces
     {
         Task<string> AuthorizeAsync(AuthenticateResult authResult);
         Task<bool> CheckAccountExistsAsync(string email);
-        Task<bool> CreateAccountAsync(string email, string name);
     }
 }

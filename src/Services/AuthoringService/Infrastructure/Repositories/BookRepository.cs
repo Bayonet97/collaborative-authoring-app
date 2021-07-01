@@ -21,7 +21,7 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
         }
         public BookRepository()
         {
-            User owner = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3"), "BookOwner");
+            User owner = new(Guid.Parse("21e247c6-5b1e-4c3b-947e-ea21fe0644be"), "BookOwner");
             User collaborator = new(Guid.Parse("6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e4"), "BookCollaborator");
     
             books.Add(new Book(Guid.Parse("910a9dff-7b21-46c6-9e80-090793cf1d0f"), owner.Id, "Lord of the Cars", Guid.Parse("c74f8e17-40ab-441b-aa27-6bd8dde8b61a")));
@@ -87,6 +87,11 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
 
             return page;
 
+        }
+
+        public Task<bool> CheckBookOwner(Guid userId, Guid bookId)
+        {
+            return Task.FromResult(books.Any(b => b.Id == bookId && b.OwnerId == userId));
         }
     }
 }

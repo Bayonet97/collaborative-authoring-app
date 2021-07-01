@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\API\CA.Services.AuthorizationService.API.csproj" />
+    <ProjectReference Include="..\Domain\CA.Services.AuthorizationService.Domain.csproj" />
   </ItemGroup>
 
 </Project>

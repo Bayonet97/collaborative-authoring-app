@@ -11,6 +11,8 @@ using System.Threading;
 using MediatR;
 using CA.Services.AuthoringService.API.Application.Commands.ChangePageCommand;
 using CA.Services.AuthoringService.API.Application.Commands;
+using CA.Services.AuthoringService.API.Application.Queries.GetBooksQuery;
+using CA.Services.AuthoringService.API.Application.Queries;
 
 namespace CA.Services.AuthoringService.API.Controllers
 {
@@ -34,6 +36,12 @@ namespace CA.Services.AuthoringService.API.Controllers
             }
             BookGroups.TryGetValue(connection.BookId, out string bookId);
             await Groups.AddToGroupAsync(Context.ConnectionId, bookId);
+            GetBooksQuery query = new(connection.UserId);
+            QueryResponse<IEnumerable<Book>> queryResponse = await mediator.Send(query);
+            //object pageOne = new{ Letters = queryResponse.Data.First().Pages.First().Text };
+         
+
+            await Clients.Group(connection.BookId.ToString()).SendAsync("BookChanged", "connected");
         }
 
         public override Task OnConnectedAsync()

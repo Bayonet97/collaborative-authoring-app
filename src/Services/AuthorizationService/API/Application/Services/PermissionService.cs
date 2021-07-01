@@ -34,7 +34,7 @@ namespace CA.Services.AuthorizationService.API.Application.Services
 
                 if (claimsDto == null) return response;
 
-                var userExist = await _authorizationContext.Users.FirstOrDefaultAsync(x =>
+                var userExist = _authorizationContext.Users.FirstOrDefault(x =>
                     x.LoginProviderId == claimsDto.Claims["user_id"].ToString());
                 if (userExist == null)
                 {
@@ -83,10 +83,10 @@ namespace CA.Services.AuthorizationService.API.Application.Services
 
         public async Task<bool> AssignElevatedPermissions(Guid userToElevate, string roleToAssign)
         {
-            var user = await _authorizationContext.Users.FirstOrDefaultAsync(x => x.Id == userToElevate);
+            var user =  _authorizationContext.Users.FirstOrDefault(x => x.Id == userToElevate);
             var claims = new Dictionary<string, object>
             {
-                {"Id", user.Id},
+                {"UserId", user.Id},
                 {ClaimTypes.Role, roleToAssign}
             };
             return await _tokenChecker.AddClaims(user.LoginProviderId, claims);

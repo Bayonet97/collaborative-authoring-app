@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CA.Services.AuthorizationService.API.Application.Services
@@ -17,16 +18,20 @@ namespace CA.Services.AuthorizationService.API.Application.Services
         public async Task<string> AuthorizeAsync(AuthenticateResult authResult)
         {
             //  AuthResponseDto response = await _authHttpRequest.SendAuthRequest(code);
+            //List<Claim> claims = authResult.Principal.Claims.ToList();
+
             var claims = authResult.Principal.Identities.FirstOrDefault()
                 .Claims.Select(claim => new
                 {
                     claim.Issuer,
                     claim.OriginalIssuer,
                     claim.Type,
-                    claim.Value
+                    claim.Value,
+                    claim.Subject
                 });
             var email = claims.FirstOrDefault(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Value;
             var name = claims.FirstOrDefault(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value;
+           // var identifier = claims.FirstOrDefault(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/identifier").Value;
             //Check if Account already exists, and register one if this is not the case. Afterwards generate a JWT
             if (!CheckAccountExistsAsync(email).Result)
             {
@@ -41,7 +46,7 @@ namespace CA.Services.AuthorizationService.API.Application.Services
             return authorizationContext.Users.FirstOrDefault(x => x.Email == email) != null;
         }
 
-        public async Task<bool> CreateAccountAsync(string email, string name)
+        private async Task<bool> CreateAccountAsync(string email, string name)
         {
             User newUser = new User()
             {
@@ -49,7 +54,7 @@ namespace CA.Services.AuthorizationService.API.Application.Services
                 Name = name,
                 Email = email
             };
-            await authorizationContext.Users.AddAsync(newUser);
+            authorizationContext.Users.Add(newUser);
             bool success = await authorizationContext.SaveChangesAsync() > 0;
 
             UserDto userDTO = newUser;

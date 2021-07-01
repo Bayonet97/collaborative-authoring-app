@@ -17,7 +17,7 @@ namespace CA.Services.AuthorizationService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [AllowAnonymous]
     public class AuthorizationController : ControllerBase
     {
         private readonly IPermissionService _permissionServiceService;

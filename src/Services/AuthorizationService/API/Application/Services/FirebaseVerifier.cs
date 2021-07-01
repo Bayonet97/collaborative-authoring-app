@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Services.AuthorizationService.Infrastructure
+namespace CA.Services.AuthorizationService.API.Services
 {
     public class FirebaseVerifier : ITokenChecker
     {

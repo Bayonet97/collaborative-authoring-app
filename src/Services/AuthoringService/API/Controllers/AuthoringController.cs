@@ -96,11 +96,12 @@ namespace CA.Services.AuthoringService.API.Controllers
         {
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator,Moderator")]
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [Authorize(Policy = "IsBookOwner")]
+        [HttpDelete("{id:guid}")]
+        public string Delete(Guid id)
         {
-           
+            Console.WriteLine("Hello I am a BOOK OWNER!");
+            return "Hello I am a BOOK OWNER, and I DELETED my book.";
         }
 
         private IActionResult UnauthorizedCommand()

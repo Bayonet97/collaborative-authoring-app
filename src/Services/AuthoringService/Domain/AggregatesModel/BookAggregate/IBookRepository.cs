@@ -23,5 +23,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         Page UpdatePage(Page page);
 
         Task<bool> AddCollaborator(Guid bookId, Guid userId);
+
+        Task<bool> CheckBookOwner(Guid userId, Guid bookId);
     }
 }

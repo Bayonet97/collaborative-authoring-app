@@ -20,6 +20,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\CA.Services.AuthorizationService.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\CA.Services.AuthorizationService.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Handlers\" />
   </ItemGroup>
 
 </Project>

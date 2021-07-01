@@ -18,6 +18,11 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using CA.Services.AuthorizationService.API.Application.Interfaces;
+using CA.Services.AuthorizationService.API.Application.Services;
+using CA.Services.AuthorizationService.API.Services;
+using CA.Services.AuthorizationService.Domain;
+using CA.Services.AuthorizationService.Infrastructure;
 
 namespace CA.Services.AuthorizationService.API
 {
@@ -33,6 +38,7 @@ namespace CA.Services.AuthorizationService.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -40,12 +46,6 @@ namespace CA.Services.AuthorizationService.API
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/authenticate/google-login";
-                })
-                .AddGoogle(options =>
-                {
-                    options.ClientId = Configuration.GetValue<string>("GOOGLE_AUTHENTICATION_ID");
-                    options.ClientSecret = Configuration.GetValue<string>("GOOGLE_AUTHENTICATION_SECRET");
-
                 });
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -74,6 +74,10 @@ namespace CA.Services.AuthorizationService.API
                         ValidateLifetime = true
                     };
                 });
+
+            services.AddSingleton<IAuthorizationContext, AuthorizationRepository>();
+            services.AddSingleton<ITokenChecker, FirebaseVerifier>();
+            services.AddSingleton<IPermissionService, PermissionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
