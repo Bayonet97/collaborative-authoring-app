@@ -21,22 +21,20 @@ namespace CA.Services.AuthoringService.API.Application.Commands.ChangePageComman
         public async Task<CommandResponse> Handle(ChangePageCommand request, CancellationToken cancellationToken)
         {
             Page page = await bookRepository.FindPageAsync(request.PageId, request.BookId);
-            Book book = await bookRepository.FindAsync(request.BookId, cancellationToken);
+            Page p = null;
 
             if (request.PageChangeType == PageChangeType.ADDITION)
             {
-                page.AddText(request.Letters, request.Position);
+                p = await bookRepository.UpdatePage(page, request.Letters, request.Position);
             }
             else if (request.PageChangeType == PageChangeType.SUBSTRACTION)
             {
                 page.RemoveText(request.Amount, request.Position);
             }
-            book.UpdatePage(page);
-            bool success = await bookRepository.UpdateAsync(book);
 
             CommandResponse commandResponse = new()
             {
-                Success = success
+                Success = p != null
             };
             return commandResponse;
         }

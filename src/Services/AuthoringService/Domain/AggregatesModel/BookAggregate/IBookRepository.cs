@@ -20,10 +20,11 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         ValueTask<Page> FindPageAsync(Guid pageId, Guid bookId);
         List<Page> UpdatePages(List<Page> pages);
 
-        Page UpdatePage(Page page);
+        ValueTask<Page> UpdatePage(Page page, string letters, int position);
 
         Task<bool> AddCollaborator(Guid bookId, Guid userId);
 
         Task<bool> CheckBookOwner(Guid userId, Guid bookId);
+        ValueTask<bool> UpdateRemarkAsync(Guid bookId, Guid pageId, Remark remark);
     }
 }

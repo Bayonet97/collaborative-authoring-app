@@ -1,0 +1,8 @@
+apiVersion: k6.io/v1alpha1
+kind: K6
+metadata:
+  name: authoring-load-test
+  namespace: collaborative-authoring-testing
+spec:
+  parallelism: 1
+  script: authoring-load-test-configmap

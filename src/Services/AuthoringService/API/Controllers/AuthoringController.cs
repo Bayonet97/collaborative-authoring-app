@@ -1,5 +1,6 @@
 ﻿using CA.Services.AuthoringService.API.Application.Commands;
 using CA.Services.AuthoringService.API.Application.Commands.AddCollaboratorCommand;
+using CA.Services.AuthoringService.API.Application.Commands.ChangePageCommand;
 using CA.Services.AuthoringService.API.Application.Commands.CreateBookCommand;
 using CA.Services.AuthoringService.API.Application.Queries;
 using CA.Services.AuthoringService.API.Application.Queries.GetBooksQuery;
@@ -102,6 +103,14 @@ namespace CA.Services.AuthoringService.API.Controllers
         {
             Console.WriteLine("Hello I am a BOOK OWNER!");
             return "Hello I am a BOOK OWNER, and I DELETED my book.";
+        }
+
+        [AllowAnonymous]
+        [HttpPost("author")]
+        public async Task<IActionResult> AuthoringStressTest(ChangePageCommand changePageCommand)
+        {
+            CommandResponse commandResponse = await _mediator.Send(changePageCommand);
+            return new OkObjectResult(commandResponse);
         }
 
         private IActionResult UnauthorizedCommand()

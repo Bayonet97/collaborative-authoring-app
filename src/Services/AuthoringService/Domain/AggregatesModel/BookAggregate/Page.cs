@@ -17,7 +17,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
         public Guid Id;
         private Guid bookId;
         private string text;
-        private List<Remark> remarks = new List<Remark>();
+        private SynchronizedCollection<Remark> remarks = new SynchronizedCollection<Remark>();
 
         public string Text 
         { 
@@ -36,7 +36,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             }
         }
 
-        public List<Remark> Remarks
+        public SynchronizedCollection<Remark> Remarks
         {
             get => remarks;
         }
@@ -104,7 +104,7 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         public bool RemoveRemark(Guid id)
         {
-            Remark r = remarks.Find(r => r.Id == id);
+            Remark r = remarks.First(r => r.Id == id);
 
             if(r == null)
             {

@@ -84,6 +84,10 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
             return true;
         }
 
+        public Page FindPage(Guid pageId)
+        {
+            return Pages.First(p => p.Id == pageId);
+        }
         public Page AddPage(Guid pageId)
         {
             Page page = new(pageId, this);

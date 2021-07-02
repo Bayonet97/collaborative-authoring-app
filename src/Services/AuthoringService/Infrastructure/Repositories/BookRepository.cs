@@ -55,7 +55,7 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
 
         public async ValueTask<bool> UpdateAsync(Book book)
         {
-            int index = books.IndexOf(books.Single(b => b.Id == book.Id));
+            int index = await Task.Run(() => books.IndexOf(books.Single(b => b.Id == book.Id)));
             await Task.Run(() => books[index] = book);
             if(books[index].Id != book.Id)
             {
@@ -64,9 +64,11 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
             return true;
         }
 
-        public Page UpdatePage(Page page)
+        public async ValueTask<Page> UpdatePage(Page newPage, string newText, int position)
         {
-            throw new NotImplementedException();
+            await Task.Run(() => books.First(b => b.Id == newPage.BookId).FindPage(newPage.Id).AddText(newText, position));
+
+            return newPage;
         }
 
         public List<Page> UpdatePages(List<Page> pages)
@@ -89,6 +91,13 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
 
         }
 
+        public async ValueTask<bool> UpdateRemarkAsync(Guid bookId, Guid pageId, Remark remark)
+        {
+            Page p = books.First(b => b.Id == bookId).Pages.First(p => p.Id == pageId);
+            await Task.Run(() => p.Remarks[p.Remarks.IndexOf(p.Remarks.First(r => r.Id == remark.Id))] = remark);
+
+            return true;
+        }
         public Task<bool> CheckBookOwner(Guid userId, Guid bookId)
         {
             return Task.FromResult(books.Any(b => b.Id == bookId && b.OwnerId == userId));

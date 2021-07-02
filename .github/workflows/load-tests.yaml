@@ -1,0 +1,67 @@
+name: Load Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    environment:
+      name: staging
+    name: Authorization Load Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Create Authoring Load Test ConfigMap
+      uses: steebchen/kubectl@master
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"create configmap -n collaborative-authoring-testing authoring-load-test-configmap --from-file src/Testing/LoadTests/loadtest.js"'
+
+    - name: Run Create Authoring Load Test
+      uses: steebchen/kubectl@master
+      if: ${{ success() }}
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"apply -n collaborative-authoring-testing -f ./kubernetes/k6/authoring-load-test.yaml"'
+
+    - name: Await Authoring Load Test Completion
+      uses: steebchen/kubectl@master
+      if: ${{ success() }}
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"wait -n collaborative-authoring-testing --timeout=600s --for=condition=complete job -l k6_cr=authoring-load-test,job-name!=authoring-load-test-starter"'
+    
+    - name: Get Logs From Authoring Load Test
+      uses: steebchen/kubectl@master
+      if: ${{ success() }}
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"logs -n collaborative-authoring-testing --tail 23 -l k6_cr=authoring-load-test,job-name!=authoring-load-test-starter"'
+
+    - name: Delete Authoring Load Test Pods
+      uses: steebchen/kubectl@master
+      if: ${{ always() }}
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"delete -n collaborative-authoring-testing -f ./kubernetes/k6/authoring-load-test.yaml"'
+
+    - name: Delete Authoring Test ConfigMap
+      uses: steebchen/kubectl@master
+      if: ${{ always() }}
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        KUBECTL_VERSION: "1.20"
+      with:
+        args: '"delete cm -n collaborative-authoring-testing authoring-load-test-configmap"'
