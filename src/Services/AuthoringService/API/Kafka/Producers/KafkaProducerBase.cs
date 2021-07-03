@@ -18,7 +18,7 @@ namespace CA.Services.AuthoringService.API.Kafka.Producers
             _producerConfig = new ProducerConfig()
             {
                 // Set to the message broker's domain
-                BootstrapServers = "localhost:29092",
+                BootstrapServers = "10.72.3.221",
                 BrokerAddressFamily = BrokerAddressFamily.V4
             };
         }

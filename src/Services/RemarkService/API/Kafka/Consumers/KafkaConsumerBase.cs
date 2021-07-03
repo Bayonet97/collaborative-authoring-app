@@ -19,7 +19,7 @@ namespace CA.Services.RemarkService.API.Kafka.Consumers
             _cluster = new ClusterClient(new Configuration
             {
                 // Set to the message broker's domain
-                Seeds = "localhost:29092"
+                Seeds = "10.72.3.221"
             }, new ConsoleLogger());
         }
 
