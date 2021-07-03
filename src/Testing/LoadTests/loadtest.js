@@ -3,8 +3,8 @@ import { check, sleep } from 'k6';
 
 export let options = {
     stages: [
-        { duration: '2m', target: 100 }, // Increasing from 1 to 400 Virtual Users (VUs) over 2 minutes.
-        { duration: '5m', target: 100 }, // Staying at 400 VUs for 3 minutes.
+        { duration: '2m', target: 200 }, // Increasing from 1 to 200 Virtual Users (VUs) over 2 minutes.
+        { duration: '4m', target: 200 }, // Staying at 200 VUs for 4 minutes.
         { duration: '1m', target: 0 },   // Decrease to 0 VUs over 1 minute.
     ],    
     thresholds: {
@@ -15,7 +15,7 @@ export let options = {
 }
 
 export default function () {
-    var url = 'http://localhost:5000/api/authoring/author';
+    var url = 'http://146.148.121.174/api/authoring/author';
     var payload = JSON.stringify({
         "UserId": "21e247c6-5b1e-4c3b-947e-ea21fe0644be",
         "BookId": "910a9dff-7b21-46c6-9e80-090793cf1d0f",
