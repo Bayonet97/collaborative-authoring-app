@@ -19,13 +19,12 @@ namespace CA.Services.RemarkService.API.Kafka.Consumers
             _cluster = new ClusterClient(new Configuration
             {
                 // Set to the message broker's domain
-                Seeds = "10.72.3.221",
-                ClientId="ca-kafka-client",
+                Seeds = "10.72.3.221:9092",
                 OffsetOutOfRangeStrategy = Offset.Earliest,
                 ErrorStrategy = ErrorStrategy.Retry,
                 OverflowStrategy = OverflowStrategy.Block,
 
-            }, new ConsoleLogger());
+            }, new ConsoleLogger()) ;
         }
 
         /// <inheritdoc cref="IEventSerializer.Deserialize{TMessage}(ReadOnlyMemory{byte})"/>
