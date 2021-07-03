@@ -20,7 +20,11 @@ namespace CA.Services.RemarkService.API.Kafka.Consumers
             {
                 // Set to the message broker's domain
                 Seeds = "10.72.3.221",
-                OffsetOutOfRangeStrategy = Offset.Earliest
+                ClientId="ca-kafka-client",
+                OffsetOutOfRangeStrategy = Offset.Earliest,
+                ErrorStrategy = ErrorStrategy.Retry,
+                OverflowStrategy = OverflowStrategy.Block,
+
             }, new ConsoleLogger());
         }
 
