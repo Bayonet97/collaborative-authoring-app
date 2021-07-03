@@ -19,7 +19,8 @@ namespace CA.Services.RemarkService.API.Kafka.Consumers
             _cluster = new ClusterClient(new Configuration
             {
                 // Set to the message broker's domain
-                Seeds = "10.72.3.221"
+                Seeds = "10.72.3.221",
+                OffsetOutOfRangeStrategy = Offset.Earliest
             }, new ConsoleLogger());
         }
 
