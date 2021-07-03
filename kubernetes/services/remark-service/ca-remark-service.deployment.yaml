@@ -44,6 +44,9 @@ spec:
           image: eu.gcr.io/s64-1-vetis/raphael/collaborative-authoring/ca-remark-service:latest
           imagePullPolicy: Always
           resources:
+            limits:
+              memory: 250Mi
+              cpu: 200m
           ports:
             - containerPort: 80
       imagePullSecrets:
