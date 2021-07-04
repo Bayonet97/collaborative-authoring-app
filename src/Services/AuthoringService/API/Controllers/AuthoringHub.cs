@@ -13,9 +13,11 @@ using CA.Services.AuthoringService.API.Application.Commands.ChangePageCommand;
 using CA.Services.AuthoringService.API.Application.Commands;
 using CA.Services.AuthoringService.API.Application.Queries.GetBooksQuery;
 using CA.Services.AuthoringService.API.Application.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CA.Services.AuthoringService.API.Controllers
 {
+    [Authorize(Policy = "IsBookEditor")]
     public class AuthoringHub : Hub
     {
         public static Dictionary<Guid, string> BookGroups = new Dictionary<Guid, string>();
