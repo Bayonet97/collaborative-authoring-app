@@ -59,9 +59,11 @@
     var connID = document.getElementById("connIDLabel");
 
 
-    connectionUrl.value = "http://146.148.121.174/api/authoring/live";
+    connectionUrl.value = "http://localhost:5000/api/authoring/live";
 
-    var hubConnection = new signalR.HubConnectionBuilder().withUrl(connectionUrl.value).build();
+    var hubConnection = new signalR.HubConnectionBuilder().withUrl(connectionUrl.value, {
+        headers: {"Authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjhiMjFkNWE1Y2U2OGM1MjNlZTc0MzI5YjQ3ZDg0NGE3YmZjODRjZmYiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUmFwaGHDq2wiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2lQUEZZbHhMQ3RSZTRYVDctZnBpM2JKMVdfenZnNWNkdWlwcTB1PXM5Ni1jIiwiSWQiOiIyMWUyNDdjNi01YjFlLTRjM2ItOTQ3ZS1lYTIxZmUwNjQ0YmUiLCJ1c2VyIjp0cnVlLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2NvbGxhYm9yYXRpdmUtYXV0aG9yaW5nIiwiYXVkIjoiY29sbGFib3JhdGl2ZS1hdXRob3JpbmciLCJhdXRoX3RpbWUiOjE2MjU0MjIxNDMsInVzZXJfaWQiOiJYMndiaXVuMWZCWW41cWFFa0paZUZBOEVqMUkzIiwic3ViIjoiWDJ3Yml1bjFmQlluNXFhRWtKWmVGQThFajFJMyIsImlhdCI6MTYyNTQyMjE0MywiZXhwIjoxNjI1NDI1NzQzLCJlbWFpbCI6InJhcGhhZWx2YWtrZXJ2ZWtlbkBob3RtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTE4MzExMTA0NzI1MTY1NzQwMTc1Il0sImVtYWlsIjpbInJhcGhhZWx2YWtrZXJ2ZWtlbkBob3RtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.OhI4jx24lTTjDXTfBmuz4H3MQJbY2l6mqU-oQjfnE94hwHqW0QkiQIGJSbY2BO1CmTkORS4MvgKiblpo4XvNDAwwSjENUTwoONao9QZEKbM8W4r84DIPJK0uU85Xs7JUmIgr7o9uxrBLq3zjDm9CKug1MhOY5c1r8574Cz82a918wYqaF7mMBxwr9Qz_jlj3SsKbkrVZ64SdoH7bPYuU-l9F4y5mcWs57TAGDuMP-NeTA-6bVHyVcA9_JCm6ZwJlcIqOtyl15pvwsCZUfu3xbGD5VmdLRr2li6b6jlgd66gOpCnchz_7NrP6LVqvEWpHDVrhLV4f-jKEsRj6-AFcvg"}
+    }).build();
 
     //CONNECT BUTTON
     connectButton.onclick = function () {
@@ -79,7 +81,7 @@
                     "UserId": "6ac6cd64-0a3f-41ad-a8a0-de5c1b9bf5e3",
                     "BookId": "910a9dff-7b21-46c6-9e80-090793cf1d0f"
                 });
-                hubConnection.invoke("Connect", message);
+                hubConnection.invoke("Connect", message, );
             }
         );
 

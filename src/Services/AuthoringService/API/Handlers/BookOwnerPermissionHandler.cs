@@ -22,20 +22,15 @@ namespace CA.Services.AuthoringService.API.Handlers
         
     }
 
-    public class BookRequest
-    {
-        public Guid BookId { get; set; }
-    }
-
     /// <summary>
-    /// Represents the <see cref="BookOwnerHandler"/> class.
+    /// Represents the <see cref="BookOwnerPermissionHandler"/> class.
     /// This class is used to authorize the highest level of modification of a book.
     /// </summary>
-    public class BookOwnerHandler : AuthorizationHandler<BookOwnerRequirement>
+    public class BookOwnerPermissionHandler : AuthorizationHandler<BookOwnerRequirement>
     {
         private readonly IBookRepository _bookRepository;
 
-        public BookOwnerHandler(IBookRepository bookRepository)
+        public BookOwnerPermissionHandler(IBookRepository bookRepository)
         {
             _bookRepository = bookRepository;
         }

@@ -102,5 +102,10 @@ namespace CA.Services.AuthoringService.Infrastructure.Repositories
         {
             return Task.FromResult(books.Any(b => b.Id == bookId && b.OwnerId == userId));
         }
+
+        public Task<bool> CheckCollaborator(Guid userId, Guid bookId)
+        {
+            return Task.FromResult(books.Any(b => b.Id == bookId && (b.OwnerId == userId || b.CollaboratorIds.Contains(userId))));
+        }
     }
 }

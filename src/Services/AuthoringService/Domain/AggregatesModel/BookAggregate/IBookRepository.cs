@@ -26,5 +26,6 @@ namespace CA.Services.AuthoringService.Domain.AggregatesModel.BookAggregate
 
         Task<bool> CheckBookOwner(Guid userId, Guid bookId);
         ValueTask<bool> UpdateRemarkAsync(Guid bookId, Guid pageId, Remark remark);
+        Task<bool> CheckCollaborator(Guid userId, Guid bookId);
     }
 }

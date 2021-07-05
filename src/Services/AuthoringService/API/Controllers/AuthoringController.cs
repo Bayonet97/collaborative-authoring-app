@@ -74,6 +74,8 @@ namespace CA.Services.AuthoringService.API.Controllers
         /// </summary>
         /// <param name="command">The create book command.</param>
         /// <returns>Returns the command response.</returns>
+        /// 
+        [Authorize(Policy = "IsBookOwner")]
         [HttpPut("AddCollaborator")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -101,11 +103,9 @@ namespace CA.Services.AuthoringService.API.Controllers
         [HttpDelete("{id:guid}")]
         public string Delete(Guid id)
         {
-            Console.WriteLine("Hello I am a BOOK OWNER!");
             return "Hello I am a BOOK OWNER, and I DELETED my book.";
         }
 
-        [AllowAnonymous]
         [HttpPost("author")]
         public async Task<IActionResult> AuthoringStressTest(ChangePageCommand changePageCommand)
         {

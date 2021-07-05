@@ -63,8 +63,10 @@ namespace CA.Services.AuthoringService.API
             {
                 options.AddPolicy("IsBookOwner", policy =>
                     policy.Requirements.Add(new BookOwnerRequirement()));
+                options.AddPolicy("IsBookEditor", policy =>
+                    policy.Requirements.Add(new BookEditorRequirement()));
             });
-            services.AddSingleton<IAuthorizationHandler, BookOwnerHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookOwnerPermissionHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
